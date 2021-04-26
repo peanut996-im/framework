@@ -9,6 +9,10 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const (
+	defaultConfigPath = "./etc/config-local.yaml"
+)
+
 //SrvConfig records for all conf
 type SrvConfig struct {
 	Build
@@ -60,11 +64,10 @@ func InitSrvCfg(build *Build, flagParse func()) (*SrvConfig, error) {
 		srvCfg.Build = *build
 	}
 
-	yamlPath := "../../etc/config-local.yaml"
+	yamlPath := ""
 
-	flag.StringVar(&yamlPath, "c", "./etc/config-local.yaml", "App configuration file. Relative to the path of repository.")
-	flag.StringVar(&yamlPath, "config", "./etc/config-local.yaml", "App configuration file. Relative to the path of repository.")
-
+	flag.StringVar(&yamlPath, "c", defaultConfigPath, "App configuration file. Relative to the path of repository.")
+	flag.StringVar(&yamlPath, "config", defaultConfigPath, "App configuration file. Relative to the path of repository.")
 	if nil != flagParse {
 		flagParse()
 	}
