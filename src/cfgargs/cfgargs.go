@@ -31,8 +31,9 @@ type Build struct {
 }
 
 type HTTP struct {
-	Cors bool   `yaml:"cors"`
-	Port string `yaml:"port"`
+	Cors    bool   `yaml:"cors"`
+	Port    string `yaml:"port"`
+	Release bool   `yaml:"release"`
 }
 
 type Log struct {

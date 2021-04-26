@@ -1,6 +1,9 @@
 package http
 
 import (
+	"fmt"
+	"framework/cfgargs"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +35,10 @@ type Server struct {
 }
 
 // NewServer ...
-func NewServer() *Server {
+func NewServer(cfg *cfgargs.SrvConfig) *Server {
+	if cfg.HTTP.Release {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	return &Server{
 		session: gin.Default(),
 		routers: []*NodeRoute{},
@@ -58,13 +64,14 @@ func (s *Server) AddNodeRoute(nodes ...*NodeRoute) {
 }
 
 //Serve ...
-func (s *Server) Serve(addr string) {
+func (s *Server) Serve(cfg *cfgargs.SrvConfig) error {
 	s.mountRoutes()
 	s.session.Use(cors.Default())
-	err := s.session.Run(addr)
+	err := s.session.Run(fmt.Sprintf(":%v", cfg.HTTP.Port))
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 func (s *Server) mountRoutes() {
