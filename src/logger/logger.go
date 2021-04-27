@@ -76,7 +76,7 @@ func InitLogger(cfg *cfgargs.SrvConfig) {
 		}
 
 		if len(cfg.Log.Path) > 0 {
-			loggerWriterFile := NewLogWriterFile()
+			loggerWriterFile := NewLoggerWriterFile()
 			err := loggerWriterFile.Open(cfg.Log.Path)
 			if nil != err {
 				log.Printf("open log file err: %v", err)
@@ -84,7 +84,7 @@ func InitLogger(cfg *cfgargs.SrvConfig) {
 			logger.logWriters = append(logger.logWriters, loggerWriterFile)
 		}
 		if cfg.Log.Console {
-			logger.logWriters = append(logger.logWriters, NewLogWriterConsole())
+			logger.logWriters = append(logger.logWriters, NewLoggerWriterConsole())
 		}
 	})
 }
@@ -251,4 +251,69 @@ func (l *Logger) WriteLog(logLevel int, msg string, v ...interface{}) {
 			panic(err)
 		}
 	}
+}
+
+func (l *Logger) GetLogWriters() []LogWriter {
+	return l.logWriters
+}
+
+type multiWriter struct {
+	writers []LogWriter
+}
+
+func (m *multiWriter) Close() {
+	for _, l := range m.writers {
+		l.Close()
+	}
+}
+
+func (m *multiWriter) Flush() {
+	for _, l := range m.writers {
+		l.Close()
+	}
+}
+
+func (m *multiWriter) Open(logPath string) error {
+	for _, l := range m.writers {
+		if err := l.Open(logPath); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *multiWriter) WriteString(s string) (n int, err error) {
+	res := 0
+	for _, l := range m.writers {
+		n, err := l.WriteString(s)
+		if err != nil {
+			return res, err
+		}
+		res += n
+	}
+	return 0, nil
+}
+
+func (m *multiWriter) Write(b []byte) (n int, err error) {
+	res := 0
+	for _, l := range m.writers {
+		n, err := l.Write(b)
+		if err != nil {
+			return res, err
+		}
+		res += n
+	}
+	return 0, nil
+}
+
+func MultiWriter(writers ...LogWriter) LogWriter {
+	allWriters := make([]LogWriter, 0, len(writers))
+	for _, w := range writers {
+		if mw, ok := w.(*multiWriter); ok {
+			allWriters = append(allWriters, mw.writers...)
+		} else {
+			allWriters = append(allWriters, w)
+		}
+	}
+	return &multiWriter{allWriters}
 }

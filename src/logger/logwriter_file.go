@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type LogWriterFile struct {
+type LoggerWriterFile struct {
 	file               *os.File
 	logPath            string
 	logPerm            string
@@ -18,13 +18,13 @@ type LogWriterFile struct {
 	timeStamp          time.Time
 }
 
-func NewLogWriterFile() *LogWriterFile {
-	return &LogWriterFile{
+func NewLoggerWriterFile() *LoggerWriterFile {
+	return &LoggerWriterFile{
 		logPerm: "0666",
 	}
 }
 
-func (l *LogWriterFile) Open(logPath string) error {
+func (l *LoggerWriterFile) Open(logPath string) error {
 	dir, _ := path.Split(logPath)
 	err := os.MkdirAll(dir, 0777)
 	if nil != err {
@@ -40,7 +40,7 @@ func (l *LogWriterFile) Open(logPath string) error {
 	return ret
 }
 
-func (l *LogWriterFile) doOpenFile(logPath string, logPerm string) error {
+func (l *LoggerWriterFile) doOpenFile(logPath string, logPerm string) error {
 	logPath = strings.Replace(logPath, "{timestamp}", time.Now().Format("20060102_150405"), -1)
 
 	// Open the log file
@@ -61,18 +61,18 @@ func (l *LogWriterFile) doOpenFile(logPath string, logPerm string) error {
 	return err
 }
 
-func (l *LogWriterFile) Close() {
+func (l *LoggerWriterFile) Close() {
 	l.file.Close()
 }
 
-func (l *LogWriterFile) Flush() {
+func (l *LoggerWriterFile) Flush() {
 	err := l.file.Sync()
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func (l *LogWriterFile) WriteString(s string) (n int, err error) {
+func (l *LoggerWriterFile) WriteString(s string) (n int, err error) {
 	l.checkRotateCounter += 1
 	if l.checkRotateCounter > 1000 {
 		l.checkRotate()
@@ -81,7 +81,11 @@ func (l *LogWriterFile) WriteString(s string) (n int, err error) {
 	return fmt.Fprintln(l.file, s)
 }
 
-func (l *LogWriterFile) checkRotate() {
+func (l *LoggerWriterFile) Write(b []byte) (n int, err error) {
+	return l.WriteString(string(b))
+}
+
+func (l *LoggerWriterFile) checkRotate() {
 	rotate := false
 	if l.timeStamp.Day() != time.Now().Day() {
 		rotate = true
