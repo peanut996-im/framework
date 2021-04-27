@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"framework/cfgargs"
+	"framework/net"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -86,15 +87,15 @@ func (s *Server) mountRoutes() {
 
 func methodMapper(group *gin.RouterGroup, method string) func(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes {
 	switch method {
-	case HTTP_METHOD_GET:
+	case net.HTTP_METHOD_GET:
 		return group.GET
-	case HTTP_METHOD_POST:
+	case net.HTTP_METHOD_POST:
 		return group.POST
-	case HTTP_METHOD_PUT:
+	case net.HTTP_METHOD_PUT:
 		return group.PUT
-	case HTTP_METHOD_DELETE:
+	case net.HTTP_METHOD_DELETE:
 		return group.DELETE
-	case HTTP_METHOD_PATCH:
+	case net.HTTP_METHOD_PATCH:
 		return group.PATCH
 	default:
 		return group.Any
