@@ -2,8 +2,6 @@ package net
 
 import (
 	"fmt"
-	"io"
-	"strings"
 )
 
 const (
@@ -68,11 +66,44 @@ type BaseRepsonse struct {
 	Data    interface{} `json:"data"`
 }
 
-func ReadFromBody(rc io.Reader) (string, error) {
-	sb := new(strings.Builder)
-	_, err := io.Copy(sb, rc)
-	if err != nil {
-		return "", err
+// func ReadStringFromBody(rc io.ReadCloser) (string, error) {
+// 	sb := new(strings.Builder)
+
+// 	r := io.TeeReader(rc, sb)
+
+// 	_, err := io.Copy(rc, r)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	return sb.String(), nil
+// }
+
+func NewBaseResponse(code int, data interface{}) *BaseRepsonse {
+	return &BaseRepsonse{
+		Code:    code,
+		Data:    data,
+		Message: ErrorCodeToString(code),
 	}
-	return sb.String(), nil
+}
+
+// func NewSignInvaildResp(err error) *BaseRepsonse {
+// 	return &BaseRepsonse{
+// 		Code:    ERROR_HTTP_SIGN_INVAILD,
+// 		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_SIGN_INVAILD), err),
+// 		Data:    struct{}{},
+// 	}
+// }
+
+func NewHttpInnerErrorResp(err error) *BaseRepsonse {
+	return &BaseRepsonse{
+		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_INNER_ERROR), err),
+	}
+}
+
+func NewSuccessResponse(data interface{}) *BaseRepsonse {
+	return &BaseRepsonse{
+		Code:    ERROR_CODE_OK,
+		Data:    data,
+		Message: ErrorCodeToString(ERROR_CODE_OK),
+	}
 }
