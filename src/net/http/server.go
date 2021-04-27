@@ -75,6 +75,10 @@ func (s *Server) Serve(cfg *cfgargs.SrvConfig) error {
 	return nil
 }
 
+func (s *Server) Use(middlewares ...gin.HandlerFunc) {
+	s.session.Use(middlewares...)
+}
+
 func (s *Server) mountRoutes() {
 	router := s.session.Group("/")
 	for _, node := range s.routers {

@@ -2,6 +2,7 @@ package api
 
 import (
 	"crypto/sha1"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -10,7 +11,39 @@ import (
 	"strings"
 )
 
-func MakeSign(params url.Values, appKey string) (string, error) {
+func CheckSignFromJsonString(s string, appKey string) (bool, error) {
+
+	j := make(map[string]interface{})
+
+	err := json.Unmarshal([]byte(s), &j)
+	getSign, ok := j["sign"]
+	if !ok || getSign == "" {
+		return false, nil
+	}
+
+	makeSign, err := MakeSignWithJsonString(s, appKey)
+	if err != nil {
+		return false, err
+	}
+
+	return makeSign == getSign, nil
+}
+
+func CheckSignFromQueryParams(params url.Values, appKey string) (bool, error) {
+	getSign := params.Get("sign")
+	if getSign == "" {
+		return false, nil
+	}
+
+	makeSign, err := MakeSignWithQueryParams(params, appKey)
+	if err != nil {
+		return false, err
+	}
+
+	return makeSign == getSign, nil
+}
+
+func MakeSignWithQueryParams(params url.Values, appKey string) (string, error) {
 	// To store the keys in slice in sorted order
 	var keys []string
 	for k := range params {
@@ -19,6 +52,7 @@ func MakeSign(params url.Values, appKey string) (string, error) {
 	sort.Strings(keys)
 
 	h := sha1.New()
+	fmt.Print("sign before sha1: ")
 	for _, k := range keys {
 		switch k {
 		case "sign":
@@ -33,7 +67,7 @@ func MakeSign(params url.Values, appKey string) (string, error) {
 			return "", err
 		}
 	}
-	fmt.Print(appKey)
+	fmt.Println(appKey)
 	if _, err := io.WriteString(h, appKey); err != nil {
 		return "", err
 	}
@@ -70,5 +104,41 @@ func MakeSignWithJsonParams(object interface{}, appkey string) (string, error) {
 		}
 	}
 
-	return MakeSign(vals, appkey)
+	return MakeSignWithQueryParams(vals, appkey)
+}
+
+func MakeSignWithJsonString(s string, appkey string) (string, error) {
+	j := make(map[string]interface{})
+	vals := url.Values{}
+
+	err := json.Unmarshal([]byte(s), &j)
+
+	if err != nil {
+		return "", err
+	}
+
+	for k, v := range j {
+		switch k {
+		case "sign":
+			continue
+		case "EIO":
+			continue
+		case "transport":
+			continue
+		}
+
+		value := reflect.ValueOf(v)
+		switch value.Kind() {
+		case reflect.Ptr:
+		case reflect.Struct:
+		case reflect.Array:
+		case reflect.Map:
+		case reflect.UnsafePointer:
+		case reflect.Slice:
+		default:
+			vals.Add(k, fmt.Sprintf("%v", value))
+		}
+
+	}
+	return MakeSignWithQueryParams(vals, appkey)
 }
