@@ -25,8 +25,6 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 
 		body := string(b)
 
-		logger.Debug("get body : %v", body)
-
 		if err != nil || len(body) == 0 {
 			checkResult, err := api.CheckSignFromQueryParams(c.Request.URL.Query(), cfg.AppKey)
 			if !checkResult || err != nil {
