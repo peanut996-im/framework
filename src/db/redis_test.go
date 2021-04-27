@@ -17,7 +17,7 @@ func init() {
 	if nil != err {
 		panic("get config error")
 	}
-	client := NewRedisClient(cfgargs.GetRedisAddr(cfg), cfg.Redis.Passwd, cfg.Redis.DB, true)
+	client := NewRedisClient(cfgargs.GetRedisAddr(cfg), cfg.Redis.Password, cfg.Redis.DB, true)
 	redisClient = client
 	redisConfig = cfg
 }
@@ -49,7 +49,7 @@ func TestNewRedisClient(t *testing.T) {
 		name string
 		args args
 	}{
-		{"case0", args{redisConfig.Redis.Host, redisConfig.Redis.Passwd, redisConfig.Redis.DB, true}},
+		{"case0", args{redisConfig.Redis.Host, redisConfig.Redis.Password, redisConfig.Redis.DB, true}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -25,11 +25,11 @@ var (
 )
 
 func init() {
-	cfg, err := cfgargs.InitSrvCfg(nil,nil)
+	cfg, err := cfgargs.InitSrvCfg(nil, nil)
 	if nil != err {
 		panic("get config error")
 	}
-	client, err := NewMongoClient(cfg.Mongo.Host, cfg.Mongo.Port, cfg.Mongo.DB, cfg.Mongo.DB, cfg.Mongo.Passwd)
+	client, err := NewMongoClient(cfg.Mongo.Host, cfg.Mongo.Port, cfg.Mongo.DB, cfg.Mongo.DB, cfg.Mongo.Password, true)
 	if err != nil {
 		panic(err)
 	}
@@ -55,11 +55,11 @@ func TestGetMongoClient(t *testing.T) {
 			port:   mongoConfig.Mongo.Port,
 			db:     mongoConfig.Mongo.DB,
 			user:   mongoConfig.Mongo.DB,
-			passwd: mongoConfig.Mongo.Passwd}, mongoClient, false},
+			passwd: mongoConfig.Mongo.Password}, mongoClient, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := NewMongoClient(tt.args.host, tt.args.port, tt.args.db, tt.args.user, tt.args.passwd)
+			_, err := NewMongoClient(tt.args.host, tt.args.port, tt.args.db, tt.args.user, tt.args.passwd, true)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetMongoClient() error = %v, wantErr %v", err, tt.wantErr)
 				return

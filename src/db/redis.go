@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"framework/cfgargs"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -15,12 +16,16 @@ var (
 // RedisClient ...
 type RedisClient struct {
 	addr              string
-	passwd            string
+	password          string
 	db                int
 	session           *redis.Client
 	ctx               context.Context
 	keepAliveInterval time.Duration //  second
 	timeout           time.Duration
+}
+
+func InitRedisClient(cfg *cfgargs.SrvConfig) {
+	lastRdsClient = NewRedisClient(fmt.Sprintf("%v:%v", cfg.Redis.Host, cfg.Redis.Port), cfg.Redis.Password, cfg.Redis.DB, cfg.Redis.Panic)
 }
 
 // IsNotExistError ...
@@ -34,34 +39,31 @@ func GetLastRedisClient() *RedisClient {
 }
 
 // NewRedisClient ...
-func NewRedisClient(addr string, passwd string, db int, panicIfDisconnect bool) *RedisClient {
+func NewRedisClient(addr string, password string, db int, panicIfDisconnect bool) *RedisClient {
 	redisClient := &RedisClient{
-		addr:   addr,
-		passwd: passwd,
-		db:     db,
+		addr:     addr,
+		password: password,
+		db:       db,
 		session: redis.NewClient(&redis.Options{
 			Addr:               addr,
-			Password:           passwd,
+			Password:           password,
 			DB:                 db,
 			PoolSize:           0xFF,
 			IdleTimeout:        7 * time.Second,
 			IdleCheckFrequency: 5 * time.Second,
 		}),
-		keepAliveInterval: 2 * time.Second,
-		ctx:               context.Background(),
-		timeout:           2 * time.Second,
+		ctx:     context.Background(),
+		timeout: 2 * time.Second,
 	}
 	go func() {
-		redisClient.doKeepAliveInterval(panicIfDisconnect)
+		redisClient.doKeepAlive(panicIfDisconnect)
 	}()
-
-	lastRdsClient = redisClient
-	return lastRdsClient
+	return redisClient
 }
 
-func (r *RedisClient) doKeepAliveInterval(panicIfDisconnect bool) {
+func (r *RedisClient) doKeepAlive(panicIfDisconnect bool) {
 	for {
-		<-time.After(r.keepAliveInterval)
+		<-time.After(r.timeout)
 		ctx, cancel := context.WithTimeout(r.ctx, r.timeout)
 		statCmd := r.session.Ping(ctx)
 		if nil != statCmd && nil != statCmd.Err() && panicIfDisconnect {

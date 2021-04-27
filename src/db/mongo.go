@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"fmt"
+	"framework/cfgargs"
+	"framework/logger"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,14 +18,23 @@ var (
 
 //MongoClient ..
 type MongoClient struct {
-	host    string
-	passwd  string
-	db      string
-	port    string
-	user    string
-	session *mongo.Client
-	ctx     context.Context
-	timeout time.Duration
+	host     string
+	password string
+	db       string
+	port     string
+	user     string
+	session  *mongo.Client
+	ctx      context.Context
+	timeout  time.Duration
+}
+
+func InitMongoClient(cfg *cfgargs.SrvConfig) error {
+	mongoClient, err := NewMongoClient(cfg.Mongo.Host, cfg.Mongo.Port, cfg.Mongo.DB, cfg.Mongo.DB, cfg.Mongo.Password, cfg.Mongo.Panic)
+	if err != nil {
+		return err
+	}
+	lastMongoClient = mongoClient
+	return nil
 }
 
 //IsNoDocumentError ...
@@ -31,43 +42,59 @@ func IsNoDocumentError(err error) bool {
 	return err == mongo.ErrNoDocuments
 }
 
-//GetlastMongoClient ...
-func GetlastMongoClient() *MongoClient {
+//GetLastMongoClient ...
+func GetLastMongoClient() *MongoClient {
 	return lastMongoClient
 }
 
 //NewMongoClient ...
-func NewMongoClient(host, port, db, user, passwd string) (mongoClient *MongoClient, err error) {
+func NewMongoClient(host, port, db, user, password string, panicIfDisconnect bool) (mongoClient *MongoClient, err error) {
 	ctx := context.Background()
 
-	url := fmt.Sprintf("mongodb://%v:%v@%v:%v/%v", user, passwd, host, port, db)
-	option := options.Client().ApplyURI(url).SetMaxPoolSize(10)
+	url := fmt.Sprintf("mongodb://%v:%v@%v:%v/%v", user, password, host, port, db)
+
+	fmt.Printf("mongo url: %v\n", url)
+
+	option := options.Client().ApplyURI(url).SetMaxPoolSize(0xff)
 	mongoSession, err := mongo.NewClient(option)
 	if nil != err {
 		return nil, err
 	}
 	err = mongoSession.Connect(context.TODO())
 	if nil != err {
-		return nil, err
-	}
-	newCtx, cancel := context.WithTimeout(ctx, time.Second*3)
-	defer cancel()
-	err = mongoSession.Ping(newCtx, nil)
-	if err != nil {
+		logger.Error("mongo connect err: %v", err)
 		return nil, err
 	}
 	mongoClient = &MongoClient{
-		host:    host,
-		port:    port,
-		db:      db,
-		passwd:  passwd,
-		user:    user,
-		ctx:     ctx,
-		timeout: 10 * time.Second,
-		session: mongoSession,
+		host:     host,
+		port:     port,
+		db:       db,
+		password: password,
+		user:     user,
+		ctx:      ctx,
+		timeout:  2 * time.Second,
+		session:  mongoSession,
 	}
-	lastMongoClient = mongoClient
+
+	go func() {
+		mongoClient.doKeepAlive(panicIfDisconnect)
+	}()
+
 	return mongoClient, nil
+}
+
+func (m *MongoClient) doKeepAlive(panicIfDisconnect bool) {
+	for {
+		<-time.After(m.timeout)
+		ctx, cancel := context.WithTimeout(m.ctx, m.timeout)
+		err := m.session.Ping(ctx, nil)
+		if err != nil {
+			fmt.Printf("mongo keep alived failed:%v\n", err)
+			cancel()
+			panic(err)
+		}
+
+	}
 }
 
 //GetAllDatabaseNames ...
