@@ -46,18 +46,20 @@ type Log struct {
 
 //Mongo conf for mongoDB
 type Mongo struct {
-	Host   string `yaml:"host"`
-	Port   string `yaml:"port"`
-	DB     string `yaml:"db"`
-	Passwd string `yaml:"passwd"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	DB       string `yaml:"db"`
+	Password string `yaml:"password"`
+	Panic    bool   `yaml:"panic"`
 }
 
 //Redis configure for Redis
 type Redis struct {
-	Host   string `yaml:"host"`
-	Port   int    `yaml:"port"`
-	Passwd string `yaml:"passwd"`
-	DB     int    `yaml:"db"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
+	Panic    bool   `yaml:"panic"`
 }
 
 func InitSrvCfg(build *Build, flagParse func()) (*SrvConfig, error) {
