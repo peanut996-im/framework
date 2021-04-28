@@ -38,7 +38,7 @@ func (s *Session) UIDSceneString() string {
 }
 
 func (s *Session) Auth(token string) (bool, error) {
-	resp, err := api.CheckUserToken(token)
+	resp, err := api.CheckToken(token)
 	if err != nil {
 		logger.Info("check user token failed error: %v", err)
 		return false, err
