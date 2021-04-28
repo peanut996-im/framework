@@ -1,4 +1,4 @@
-package model
+package api
 
 import "github.com/bwmarrin/snowflake"
 
@@ -19,4 +19,7 @@ func NewUser(account string, password string) *User {
 	}
 }
 
-
+func CheckUserToken(token string) (*User, error) {
+	// todo
+	return nil, nil
+}

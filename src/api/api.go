@@ -17,8 +17,8 @@ func CheckSignFromJsonString(s string, appKey string) (bool, error) {
 
 	err := json.Unmarshal([]byte(s), &j)
 	getSign, ok := j["sign"]
-	if !ok || getSign == "" {
-		return false, nil
+	if !ok || getSign == "" || err != nil {
+		return false, err
 	}
 
 	makeSign, err := MakeSignWithJsonString(s, appKey)
