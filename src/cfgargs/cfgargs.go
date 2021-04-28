@@ -16,11 +16,12 @@ const (
 //SrvConfig records for all conf
 type SrvConfig struct {
 	Build
-	Mongo  `yaml:"mongo"`
-	Redis  `yaml:"redis"`
-	Log    `yaml:"log"`
-	HTTP   `yaml:"http"`
-	AppKey string `yaml:"appkey"`
+	Mongo    `yaml:"mongo"`
+	Redis    `yaml:"redis"`
+	Log      `yaml:"log"`
+	HTTP     `yaml:"http"`
+	SocketIO `yaml:"socket.io"`
+	AppKey   string `yaml:"appkey"`
 }
 
 type Build struct {
@@ -28,6 +29,10 @@ type Build struct {
 	BuildUser    string
 	BuildVersion string
 	BuildMachine string
+}
+
+type SocketIO struct {
+	Port int `yaml:"port"`
 }
 
 type HTTP struct {
