@@ -11,7 +11,7 @@ import (
 type Session struct {
 	Conn  sio.Conn
 	token string
-	uid   int64
+	uid   string
 	scene string
 }
 

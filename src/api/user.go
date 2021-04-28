@@ -1,10 +1,12 @@
 package api
 
-import "github.com/bwmarrin/snowflake"
+import (
+	"github.com/bwmarrin/snowflake"
+)
 
 //User means a people who use the system.
 type User struct {
-	UID      int64
+	UID      string
 	Account  string
 	Password string
 }
@@ -13,13 +15,8 @@ type User struct {
 func NewUser(account string, password string) *User {
 	node, _ := snowflake.NewNode(1)
 	return &User{
-		UID:      node.Generate().Int64(),
+		UID:      node.Generate().String(),
 		Account:  account,
 		Password: password,
 	}
-}
-
-func CheckUserToken(token string) (*User, error) {
-	// todo
-	return nil, nil
 }
