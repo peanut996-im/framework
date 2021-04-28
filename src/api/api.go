@@ -11,6 +11,12 @@ import (
 	"strings"
 )
 
+const (
+	UID_TO_TOKEN_FORMAT       = "%v_to_token"
+	TOKEN_TO_UID_FORMAT       = "%v_to_uid"
+	DEFAULT_TOKEN_EXPIRE_TIME = 24 * 60 * 60
+)
+
 func CheckSignFromJsonString(s string, appKey string) (bool, error) {
 
 	j := make(map[string]interface{})
@@ -141,4 +147,12 @@ func MakeSignWithJsonString(s string, appkey string) (string, error) {
 
 	}
 	return MakeSignWithQueryParams(vals, appkey)
+}
+
+func UIDToTokenFormat(uid string) string {
+	return fmt.Sprintf(UID_TO_TOKEN_FORMAT, uid)
+}
+
+func TokenToUIDFormat(token string) string {
+	return fmt.Sprintf(TOKEN_TO_UID_FORMAT, token)
 }
