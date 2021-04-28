@@ -28,7 +28,7 @@ func InitRedisClient(cfg *cfgargs.SrvConfig) {
 	lastRdsClient = NewRedisClient(fmt.Sprintf("%v:%v", cfg.Redis.Host, cfg.Redis.Port), cfg.Redis.Password, cfg.Redis.DB, cfg.Redis.Panic)
 }
 
-// IsNotExistError ...
+// IsNotExistError 判断error是否为redis.Nil
 func IsNotExistError(err error) bool {
 	return err == redis.Nil
 }
@@ -104,6 +104,15 @@ func (r *RedisClient) Get(key string) (val string, err error) {
 	return
 }
 
+// GetOne ...
+func (r *RedisClient) GetOne(key string) (string, error) {
+	ctx, cancel := context.WithTimeout(r.ctx, r.timeout)
+	defer cancel()
+	stringCmd := r.session.Get(ctx, key)
+	result, err := stringCmd.Result()
+	return result, err
+}
+
 // MGet ...
 func (r *RedisClient) MGet(keys []string) (vals []interface{}, err error) {
 	ctx, cancel := context.WithTimeout(r.ctx, r.timeout)
@@ -173,15 +182,6 @@ func (r *RedisClient) HKeys(key string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(r.ctx, r.timeout)
 	defer cancel()
 	return r.session.HKeys(ctx, key).Result()
-}
-
-// GetOne ...
-func (r *RedisClient) GetOne(key string) (string, error) {
-	ctx, cancel := context.WithTimeout(r.ctx, r.timeout)
-	defer cancel()
-	stringCmd := r.session.Get(ctx, key)
-	result, err := stringCmd.Result()
-	return result, err
 }
 
 // DelOne ...

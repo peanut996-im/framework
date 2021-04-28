@@ -6,11 +6,14 @@ import (
 
 const (
 	// response code
-	ERROR_CODE_OK           = 0
-	ERROR_HTTP_SIGN_INVAILD = 1000 + iota
+	ERROR_CODE_OK      = 0
+	ERROR_SIGN_INVAILD = 1000 + iota
 	ERROR_TOKEN_INVALID
+	ERROR_AUTH_FAILED
 	ERROR_HTTP_INNER_ERROR
 	ERROR_HTTP_PARAM_INVALID
+	ERROR_HTTP_RESOURCE_EXISTS
+	ERROR_HTTP_RESOURCE_NOT_FOUND
 
 	// HTTP Method
 	HTTP_METHOD_GET    string = "GET"
@@ -32,27 +35,49 @@ const (
 
 var (
 	respCodeInfo = map[int]string{
-		ERROR_CODE_OK:            "Success",
-		ERROR_TOKEN_INVALID:      "Token invalid.",
-		ERROR_HTTP_INNER_ERROR:   "Http inner error err: %v",
-		ERROR_HTTP_PARAM_INVALID: "Http param invalid err: %v",
-		ERROR_HTTP_SIGN_INVAILD:  "Sign invaild.",
+		ERROR_CODE_OK:                 "Success",
+		ERROR_TOKEN_INVALID:           "Token invalid.",
+		ERROR_HTTP_INNER_ERROR:        "Http inner error err: %v",
+		ERROR_HTTP_PARAM_INVALID:      "Http param invalid err: %v",
+		ERROR_SIGN_INVAILD:            "Sign invaild.",
+		ERROR_HTTP_RESOURCE_EXISTS:    "Http resource already exists. err: %v",
+		ERROR_HTTP_RESOURCE_NOT_FOUND: "Http resource not found. err: %v",
+		ERROR_AUTH_FAILED:             "Authentication failed",
+
 		// ERROR_REDIS:              "Redis error err: %v",
 		// ERROR_MONGO:              "Mongo error err: %v",
 		// ERROR_UNMARSHAL_JSON:     "Unmarshal json  err: %v",
 		// ERROR_MARSHAL_JSON:       "Marshal json  err: %v",
 	}
 
-	InnerErrorResp = &BaseRepsonse{
-		Code:    ERROR_HTTP_INNER_ERROR,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_INNER_ERROR)),
-		Data:    struct{}{},
+	SignInvaildResp = &BaseRepsonse{
+		Code:    ERROR_SIGN_INVAILD,
+		Message: fmt.Sprint(ErrorCodeToString(ERROR_SIGN_INVAILD)),
+		Data:    nil,
 	}
 
-	SignInvaildResp = &BaseRepsonse{
-		Code:    ERROR_HTTP_SIGN_INVAILD,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_SIGN_INVAILD)),
-		Data:    struct{}{},
+	ResourceExistsResp = &BaseRepsonse{
+		Code:    ERROR_HTTP_RESOURCE_EXISTS,
+		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_EXISTS), nil),
+		Data:    nil,
+	}
+
+	ResourceNotFoundResp = &BaseRepsonse{
+		Code:    ERROR_HTTP_RESOURCE_NOT_FOUND,
+		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_NOT_FOUND), nil),
+		Data:    nil,
+	}
+
+	AuthFaildResp = &BaseRepsonse{
+		Code:    ERROR_AUTH_FAILED,
+		Message: fmt.Sprintf(ErrorCodeToString(ERROR_AUTH_FAILED)),
+		Data:    nil,
+	}
+
+	TokenInvaildResp = &BaseRepsonse{
+		Code:    ERROR_TOKEN_INVALID,
+		Message: fmt.Sprint(ErrorCodeToString(ERROR_TOKEN_INVALID)),
+		Data:    nil,
 	}
 )
 
@@ -66,18 +91,6 @@ type BaseRepsonse struct {
 	Data    interface{} `json:"data"`
 }
 
-// func ReadStringFromBody(rc io.ReadCloser) (string, error) {
-// 	sb := new(strings.Builder)
-
-// 	r := io.TeeReader(rc, sb)
-
-// 	_, err := io.Copy(rc, r)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	return sb.String(), nil
-// }
-
 func NewBaseResponse(code int, data interface{}) *BaseRepsonse {
 	return &BaseRepsonse{
 		Code:    code,
@@ -86,17 +99,11 @@ func NewBaseResponse(code int, data interface{}) *BaseRepsonse {
 	}
 }
 
-// func NewSignInvaildResp(err error) *BaseRepsonse {
-// 	return &BaseRepsonse{
-// 		Code:    ERROR_HTTP_SIGN_INVAILD,
-// 		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_SIGN_INVAILD), err),
-// 		Data:    struct{}{},
-// 	}
-// }
-
 func NewHttpInnerErrorResp(err error) *BaseRepsonse {
 	return &BaseRepsonse{
+		Code:    ERROR_HTTP_INNER_ERROR,
 		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_INNER_ERROR), err),
+		Data:    nil,
 	}
 }
 
@@ -105,5 +112,13 @@ func NewSuccessResponse(data interface{}) *BaseRepsonse {
 		Code:    ERROR_CODE_OK,
 		Data:    data,
 		Message: ErrorCodeToString(ERROR_CODE_OK),
+	}
+}
+
+func NewResourceExistsResp(err error) *BaseRepsonse {
+	return &BaseRepsonse{
+		Code:    ERROR_HTTP_RESOURCE_EXISTS,
+		Data:    nil,
+		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_EXISTS), err),
 	}
 }
