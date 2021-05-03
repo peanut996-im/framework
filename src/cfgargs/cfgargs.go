@@ -130,3 +130,16 @@ func (s *SrvConfig) loadLocalYaml(path string) error {
 func GetRedisAddr(config *SrvConfig) string {
 	return fmt.Sprintf("%v:%v", config.Redis.Host, config.Redis.Port)
 }
+
+func (s *SrvConfig) Print() {
+	fmt.Println("BuildInfo:")
+	fmt.Printf("BuildTime: %v\n", s.BuildTime)
+	fmt.Printf("BuildUser: %v\n", s.BuildUser)
+	fmt.Printf("BuildVersion: %v\n", s.BuildVersion)
+	fmt.Printf("BuildMachine: %v\n", s.BuildMachine)
+	fmt.Printf("Log: %+v\n", s.Log)
+	fmt.Printf("HTTP: %+v\n", s.HTTP)
+	fmt.Printf("Mongo: %+v\n", s.Mongo)
+	fmt.Printf("Redis: %+v\n", s.Redis)
+	fmt.Println("")
+}

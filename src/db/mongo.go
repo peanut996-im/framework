@@ -53,8 +53,6 @@ func NewMongoClient(host, port, db, user, password string, panicIfDisconnect boo
 
 	url := fmt.Sprintf("mongodb://%v:%v@%v:%v/%v", user, password, host, port, db)
 
-	fmt.Printf("mongo url: %v\n", url)
-
 	option := options.Client().ApplyURI(url).SetMaxPoolSize(0xff)
 	mongoSession, err := mongo.NewClient(option)
 	if nil != err {
