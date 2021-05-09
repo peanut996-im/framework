@@ -86,7 +86,7 @@ func (m *MongoClient) doKeepAlive(panicIfDisconnect bool) {
 		<-time.After(m.timeout)
 		ctx, cancel := context.WithTimeout(m.ctx, m.timeout)
 		err := m.session.Ping(ctx, nil)
-		if err != nil {
+		if err != nil && panicIfDisconnect {
 			fmt.Printf("mongo keep alived failed:%v\n", err)
 			cancel()
 			panic(err)
