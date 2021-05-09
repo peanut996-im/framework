@@ -34,10 +34,7 @@ func NewServer() *Server {
 }
 
 func (s *Server) Run(cfg *cfgargs.SrvConfig) error {
-	srv, err := sio.NewServer(nil)
-	if err != nil {
-		return err
-	}
+	srv := sio.NewServer(nil)
 	s.srv = srv
 
 	defer s.srv.Close()
@@ -65,7 +62,7 @@ func (s *Server) Run(cfg *cfgargs.SrvConfig) error {
 	addr := fmt.Sprintf(":%v", cfg.SocketIO.Port)
 	logger.Info("Serving at %v...", addr)
 
-	err = http.ListenAndServe(addr, nil)
+	err := http.ListenAndServe(addr, nil)
 	logger.Fatal("Serving at %v... err:%v", addr, err)
 	return err
 }
@@ -117,13 +114,13 @@ func (s *Server) DisconnectSession(conn sio.Conn) *Session {
 	if ok || nil != si {
 		delete(s.SocketIOToSessions, si.Conn.ID())
 	} else {
-		logger.Warn("Sessions.DisconnSession[%v] not found", SocketIOToString(conn))
+		logger.Warn("Sessions.DisconnectSession[%v] not found", SocketIOToString(conn))
 	}
 
 	if nil != si {
 		siScene, ok := s.UIDSceneToSessions[si.UIDSceneString()]
 		if ok || nil != siScene {
-			logger.Info("Sessions.DisconnSession,UIDAndScene:v%", si.UIDSceneString())
+			logger.Info("Sessions.DisconnectSession,UIDAndScene:v%", si.UIDSceneString())
 			delete(s.UIDSceneToSessions, si.UIDSceneString())
 		}
 	}
