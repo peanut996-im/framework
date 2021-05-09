@@ -15,13 +15,12 @@ var (
 
 // RedisClient ...
 type RedisClient struct {
-	addr              string
-	password          string
-	db                int
-	session           *redis.Client
-	ctx               context.Context
-	keepAliveInterval time.Duration //  second
-	timeout           time.Duration
+	addr     string
+	password string
+	db       int
+	session  *redis.Client
+	ctx      context.Context
+	timeout  time.Duration
 }
 
 func InitRedisClient(cfg *cfgargs.SrvConfig) {
