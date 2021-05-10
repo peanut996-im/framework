@@ -10,10 +10,9 @@ import (
 	sio "github.com/googollee/go-socket.io"
 )
 
-var nsp = "/"
-
 type Server struct {
 	srv                *sio.Server
+	nsp                string
 	handlers           map[string]interface{}
 	SocketIOToSessions map[string]*Session
 	UIDSceneToSessions map[string]*Session
@@ -26,6 +25,8 @@ func NewSIOHandlers() map[string]interface{} {
 
 func NewServer() *Server {
 	s := &Server{
+		srv:                sio.NewServer(nil),
+		nsp:                "/",
 		handlers:           make(map[string]interface{}),
 		SocketIOToSessions: make(map[string]*Session),
 		UIDSceneToSessions: make(map[string]*Session),
@@ -34,11 +35,19 @@ func NewServer() *Server {
 }
 
 func (s *Server) Run(cfg *cfgargs.SrvConfig) error {
-	srv := sio.NewServer(nil)
-	s.srv = srv
 
-	defer s.srv.Close()
-	go s.srv.Serve() //nolint: errcheck
+	defer func(srv *sio.Server) {
+		err := srv.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(s.srv)
+	go func() {
+		err := s.srv.Serve()
+		if err != nil {
+			panic(err)
+		}
+	}() //nolint: errcheck
 
 	if cfg.HTTP.Cors {
 		http.HandleFunc("/socket.io/", func(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +68,7 @@ func (s *Server) Run(cfg *cfgargs.SrvConfig) error {
 	} else {
 		http.Handle("/socket.io/", s.srv)
 	}
+
 	addr := fmt.Sprintf(":%v", cfg.SocketIO.Port)
 	logger.Info("Serving at %v...", addr)
 
@@ -68,19 +78,20 @@ func (s *Server) Run(cfg *cfgargs.SrvConfig) error {
 }
 
 func (s *Server) OnConnect(f func(sio.Conn) error) {
-	s.srv.OnConnect(nsp, f)
+	s.srv.OnConnect(s.nsp, f)
 }
 
 func (s *Server) OnDisconnect(f func(sio.Conn, string)) {
-	s.srv.OnDisconnect(nsp, f)
+	s.srv.OnDisconnect(s.nsp, f)
 }
 
 func (s *Server) OnError(f func(sio.Conn, error)) {
-	s.srv.OnError(nsp, f)
+	s.srv.OnError(s.nsp, f)
 }
 
-func (s *Server) MountHandlers(handlers map[string]func(sio.Conn, ...interface{})) {
+func (s *Server) MountHandlers(nsp string, handlers map[string]interface{}) {
 	for k, v := range handlers {
+		//fmt.Printf("nsp is %v",nsp)
 		s.srv.OnEvent(nsp, k, v)
 	}
 }
@@ -127,4 +138,9 @@ func (s *Server) DisconnectSession(conn sio.Conn) *Session {
 
 	s.Unlock()
 	return si
+}
+
+//SetNameSpace 改变默认的namespace
+func (s *Server) SetNameSpace(nsp string) {
+	s.nsp = nsp
 }
