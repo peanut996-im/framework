@@ -65,7 +65,7 @@ func CheckToken(token string) (*User, error) {
 
 	filter := bson.M{"uid": uid}
 	user := &User{}
-	err = mongo.FindOne("user", user, filter)
+	err = mongo.FindOne("User", user, filter)
 	if err != nil {
 		logger.Info("mongo get user from uid err: %v, uid: %v", err, uid)
 		return nil, err

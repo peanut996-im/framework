@@ -13,6 +13,10 @@ const (
 	defaultConfigPath = "./etc/config-local.yaml"
 )
 
+var (
+	lastSrvCfg *SrvConfig
+)
+
 //SrvConfig records for all conf
 type SrvConfig struct {
 	Build
@@ -86,6 +90,7 @@ func InitSrvCfg(build *Build, flagParse func()) (*SrvConfig, error) {
 		return nil, err
 	}
 
+	lastSrvCfg = srvCfg
 	return srvCfg, nil
 	// yamlPath := flag.String("c", "", "Yaml config file path.(Relative to the path of the executable file)")
 }
@@ -129,6 +134,11 @@ func (s *SrvConfig) loadLocalYaml(path string) error {
 // GetRedisAddr printf the redis addr from srvconfig
 func GetRedisAddr(config *SrvConfig) string {
 	return fmt.Sprintf("%v:%v", config.Redis.Host, config.Redis.Port)
+}
+
+//GetLastSrvConfig 返回全局
+func GetLastSrvConfig() *SrvConfig {
+	return lastSrvCfg
 }
 
 func (s *SrvConfig) Print() {
