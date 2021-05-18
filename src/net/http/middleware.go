@@ -6,11 +6,14 @@ import (
 	"framework/cfgargs"
 	"framework/logger"
 	"framework/net"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
+
+// middlewares must be use in app service instead of framework.
+// cors should be front of checksign.
 
 func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -56,4 +59,8 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+func CORS() gin.HandlerFunc {
+	return cors.Default()
 }

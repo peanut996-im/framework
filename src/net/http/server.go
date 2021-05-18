@@ -4,20 +4,15 @@ import (
 	"fmt"
 	"framework/cfgargs"
 	"framework/net"
-
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
-// type Route map[string]func(c *gin.Context)
-// type Route map[func(c *gin.Context)] HTTPMethod
 type Route struct {
 	method  string
 	path    string
 	handler gin.HandlerFunc
 }
 
-// RouteNode distinguish routes with develop api.
 type NodeRoute struct {
 	path   string
 	routes []*Route
@@ -67,7 +62,6 @@ func (s *Server) AddNodeRoute(nodes ...*NodeRoute) {
 //Serve ...
 func (s *Server) Serve(cfg *cfgargs.SrvConfig) error {
 	s.mountRoutes()
-	s.session.Use(cors.Default())
 	err := s.session.Run(fmt.Sprintf(":%v", cfg.HTTP.Port))
 	if err != nil {
 		return err
