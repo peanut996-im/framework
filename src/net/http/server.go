@@ -61,6 +61,12 @@ func (s *Server) AddNodeRoute(nodes ...*NodeRoute) {
 
 //Serve ...
 func (s *Server) Serve(cfg *cfgargs.SrvConfig) error {
+	if cfg.HTTP.Cors {
+		s.session.Use(CORS())
+	}
+	if cfg.HTTP.Sign {
+		s.session.Use(CheckSign(cfg))
+	}
 	s.mountRoutes()
 	err := s.session.Run(fmt.Sprintf(":%v", cfg.HTTP.Port))
 	if err != nil {
