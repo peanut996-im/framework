@@ -13,8 +13,15 @@ type Session struct {
 	token string
 	uid   string
 	scene string
+	sid   string
 }
 
+func NewSession(conn sio.Conn) *Session {
+	return &Session{
+		Conn: conn,
+		sid:  conn.ID(),
+	}
+}
 func (s *Session) SetScene(scene string) {
 	s.scene = scene
 }
@@ -23,7 +30,7 @@ func (s *Session) ID() string {
 	return s.Conn.ID()
 }
 
-func SocketIOToString(c sio.Conn) string {
+func ToString(c sio.Conn) string {
 	if nil != c {
 		id := c.ID()
 		localAddr := c.LocalAddr()
@@ -37,17 +44,18 @@ func (s *Session) UIDSceneString() string {
 	return fmt.Sprintf("uid:%v_scene:%v", s.uid, s.scene)
 }
 
-func (s *Session) Auth(token string) (bool, error) {
+func (s *Session) Auth(token string) (*api.User, error) {
 	resp, err := api.CheckToken(token)
 	if err != nil {
 		logger.Info("check user token failed error: %v", err)
-		return false, err
+		return nil, err
 	}
 	s.uid = resp.UID
 	s.token = token
-	return true, nil
+	s.sid = s.Conn.ID()
+	return resp, nil
 }
 
 func (s *Session) ToString() string {
-	return SocketIOToString(s.Conn)
+	return ToString(s.Conn)
 }

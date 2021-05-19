@@ -67,6 +67,8 @@ func MakeSignWithQueryParams(params url.Values, appKey string) (string, error) {
 			continue
 		case "transport":
 			continue
+		case "t":
+			continue
 		}
 		fmt.Printf("%v%v", k, params.Get(k))
 		if _, err := io.WriteString(h, fmt.Sprintf("%v%v", k, params.Get(k))); err != nil {

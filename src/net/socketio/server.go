@@ -2,9 +2,12 @@ package socketio
 
 import (
 	"fmt"
+	"framework/api"
 	"framework/cfgargs"
 	"framework/logger"
+	"framework/net"
 	"net/http"
+	"net/url"
 	"sync"
 
 	sio "github.com/googollee/go-socket.io"
@@ -16,6 +19,7 @@ type Server struct {
 	handlers           map[string]interface{}
 	SocketIOToSessions map[string]*Session
 	UIDSceneToSessions map[string]*Session
+	UIDToSessions      map[string]*Session
 	sync.Mutex
 }
 
@@ -30,8 +34,39 @@ func NewServer() *Server {
 		handlers:           make(map[string]interface{}),
 		SocketIOToSessions: make(map[string]*Session),
 		UIDSceneToSessions: make(map[string]*Session),
+		UIDToSessions:      make(map[string]*Session),
 	}
 	return s
+}
+
+func (s *Server) AcceptSession(session *Session, query string) (error int) {
+	vals, err := url.ParseQuery(query)
+	sign, _ := api.MakeSignWithQueryParams(vals, cfgargs.GetLastSrvConfig().AppKey)
+	if sign != vals.Get("sign") {
+		logger.Info("Session[%v]'s  sign: %v", session.ToString(), sign)
+		return net.ERROR_SIGN_INVAILD
+	}
+	if nil != err {
+		logger.Info("parse token failed, err: %v", err)
+		return net.ERROR_TOKEN_INVALID
+	}
+
+	t := vals.Get("token")
+	_, err = session.Auth(t)
+	if err != nil {
+		logger.Info("token not valid, session:[%v], err:[%v]", session.ToString(), error)
+		return net.ERROR_TOKEN_INVALID
+	}
+	logger.Info("Session.Accept succeed, session:[%v]", session.ToString())
+
+	s.Lock()
+	s.SocketIOToSessions[session.sid] = session
+	s.UIDToSessions[session.uid] = session
+	s.Unlock()
+
+	logger.Info("Session.Accept done. Session[%v]", session.ToString())
+	return net.ERROR_CODE_OK
+
 }
 
 func (s *Server) Run(cfg *cfgargs.SrvConfig) error {
@@ -125,7 +160,7 @@ func (s *Server) DisconnectSession(conn sio.Conn) *Session {
 	if ok || nil != si {
 		delete(s.SocketIOToSessions, si.Conn.ID())
 	} else {
-		logger.Warn("Sessions.DisconnectSession[%v] not found", SocketIOToString(conn))
+		logger.Warn("Sessions.DisconnectSession[%v] not found", ToString(conn))
 	}
 
 	if nil != si {
