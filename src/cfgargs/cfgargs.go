@@ -25,6 +25,7 @@ type SrvConfig struct {
 	Log      `yaml:"log"`
 	HTTP     `yaml:"http"`
 	SocketIO `yaml:"socket.io"`
+	Logic    `yaml:"logic"`
 	AppKey   string `yaml:"appkey"`
 }
 
@@ -69,6 +70,13 @@ type Redis struct {
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
 	Panic    bool   `yaml:"panic"`
+}
+
+//Logic configure for Redis
+type Logic struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+	Mode string `yaml:"mode"`
 }
 
 func InitSrvCfg(build *Build, flagParse func()) (*SrvConfig, error) {
