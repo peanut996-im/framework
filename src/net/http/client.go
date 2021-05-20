@@ -139,3 +139,7 @@ func (c *Client) ObjectToUrlValues(obj interface{}) url.Values {
 
 	return vals
 }
+
+func (c *Client) GetGoReq() *gorequest.SuperAgent {
+	return c.goreq
+}
