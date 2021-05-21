@@ -2,8 +2,8 @@ package http
 
 import (
 	"fmt"
+	"framework/api"
 	"framework/cfgargs"
-	"framework/net"
 	"github.com/gin-gonic/gin"
 )
 
@@ -91,15 +91,15 @@ func (s *Server) mountRoutes() {
 
 func methodMapper(group *gin.RouterGroup, method string) func(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes {
 	switch method {
-	case net.HTTP_METHOD_GET:
+	case api.HTTP_METHOD_GET:
 		return group.GET
-	case net.HTTP_METHOD_POST:
+	case api.HTTP_METHOD_POST:
 		return group.POST
-	case net.HTTP_METHOD_PUT:
+	case api.HTTP_METHOD_PUT:
 		return group.PUT
-	case net.HTTP_METHOD_DELETE:
+	case api.HTTP_METHOD_DELETE:
 		return group.DELETE
-	case net.HTTP_METHOD_PATCH:
+	case api.HTTP_METHOD_PATCH:
 		return group.PATCH
 	default:
 		return group.Any

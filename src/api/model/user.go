@@ -1,4 +1,4 @@
-package api
+package model
 
 import (
 	"github.com/bwmarrin/snowflake"

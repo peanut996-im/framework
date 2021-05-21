@@ -5,7 +5,6 @@ import (
 	"framework/api"
 	"framework/cfgargs"
 	"framework/logger"
-	"framework/net"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -20,7 +19,7 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 		b, err := c.GetRawData()
 		if err != nil {
 			logger.Error("get raw data err: %v", err)
-			c.AbortWithStatusJSON(http.StatusOK, net.NewHttpInnerErrorResp(err))
+			c.AbortWithStatusJSON(http.StatusOK, api.NewHttpInnerErrorResponse(err))
 		}
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(b))
 
@@ -35,26 +34,26 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 				if !cfg.HTTP.Release {
 					sign, err := api.MakeSignWithQueryParams(c.Request.URL.Query(), cfg.AppKey)
 					if err == nil {
-						c.AbortWithStatusJSON(http.StatusOK, net.NewBaseResponse(net.ERROR_SIGN_INVAILD, gin.H{"sign": sign}))
+						c.AbortWithStatusJSON(http.StatusOK, api.NewBaseResponse(api.ERROR_SIGN_INVAILD, gin.H{"sign": sign}))
 						return
 					}
 				}
-				c.AbortWithStatusJSON(http.StatusOK, net.SignInvaildResp)
+				c.AbortWithStatusJSON(http.StatusOK, api.SignInvaildResp)
 			}
 		} else {
 			// json
 			logger.Debug("get http body: %v", body)
-			checkResult, err := api.CheckSignFromJsonString(body, cfg.AppKey)
+			checkResult, err := api.CheckSignFromJsonParams(body, cfg.AppKey)
 			if !checkResult || err != nil {
 				logger.Debug("check sign with json failed: body: %v", body)
 				if !cfg.HTTP.Release {
 					sign, err := api.MakeSignWithJsonString(body, cfg.AppKey)
 					if err == nil {
-						c.AbortWithStatusJSON(http.StatusOK, net.NewBaseResponse(net.ERROR_SIGN_INVAILD, gin.H{"sign": sign}))
+						c.AbortWithStatusJSON(http.StatusOK, api.NewBaseResponse(api.ERROR_SIGN_INVAILD, gin.H{"sign": sign}))
 						return
 					}
 				}
-				c.AbortWithStatusJSON(http.StatusOK, net.SignInvaildResp)
+				c.AbortWithStatusJSON(http.StatusOK, api.SignInvaildResp)
 			}
 		}
 		c.Next()

@@ -3,6 +3,7 @@ package socketio
 import (
 	"fmt"
 	"framework/api"
+	"framework/api/model"
 	"framework/logger"
 
 	sio "github.com/googollee/go-socket.io"
@@ -44,7 +45,7 @@ func (s *Session) UIDSceneString() string {
 	return fmt.Sprintf("uid:%v_scene:%v", s.uid, s.scene)
 }
 
-func (s *Session) Auth(token string) (*api.User, error) {
+func (s *Session) Auth(token string) (*model.User, error) {
 	resp, err := api.CheckToken(token)
 	if err != nil {
 		logger.Info("check user token failed error: %v", err)

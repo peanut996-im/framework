@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"framework/api"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
 	"sync"
-
-	"framework/net"
 
 	"github.com/parnurzeal/gorequest"
 )
@@ -43,25 +42,25 @@ func GetAPIString(host, path string) string {
 
 // GetWithQueryParams Send a Get request and unmarshal.
 func (c *Client) GetWithQueryParams(url string, vals url.Values, respModel interface{}) error {
-	req, err := http.NewRequest(net.HTTP_METHOD_GET, url, nil)
+	req, err := http.NewRequest(api.HTTP_METHOD_GET, url, nil)
 	if err != nil {
-		return fmt.Errorf(net.NEW_REQUEST_ERROR, err, url)
+		return fmt.Errorf(api.NEW_REQUEST_ERROR, err, url)
 	}
 	req.URL.RawQuery = vals.Encode()
 	resp, err := c.session.Do(req)
 	if err != nil {
-		return fmt.Errorf(net.DO_REQUEST_ERROR, err, url)
+		return fmt.Errorf(api.DO_REQUEST_ERROR, err, url)
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		return fmt.Errorf(net.READ_RESP_BODY_ERROR, err, url)
+		return fmt.Errorf(api.READ_RESP_BODY_ERROR, err, url)
 	}
 
 	// respModel must be a pointer
 	err = json.Unmarshal(body, respModel)
 	if nil != err {
-		return fmt.Errorf(net.UNMARSHAL_JSON_ERROR, err)
+		return fmt.Errorf(api.UNMARSHAL_JSON_ERROR, err)
 	}
 	return nil
 }
@@ -69,19 +68,19 @@ func (c *Client) GetWithQueryParams(url string, vals url.Values, respModel inter
 func (c *Client) PostForm(url string, vals url.Values, respModel interface{}) error {
 	resp, err := http.PostForm(url, vals)
 	if nil != err {
-		return fmt.Errorf(net.DO_POST_REQUEST_ERROR, err, url)
+		return fmt.Errorf(api.DO_POST_REQUEST_ERROR, err, url)
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf(net.READ_RESP_BODY_ERROR, err, url)
+		return fmt.Errorf(api.READ_RESP_BODY_ERROR, err, url)
 	}
 
 	// respModel must be a pointer
 	err = json.Unmarshal(body, respModel)
 	if err != nil {
-		return fmt.Errorf(net.UNMARSHAL_JSON_ERROR, err)
+		return fmt.Errorf(api.UNMARSHAL_JSON_ERROR, err)
 	}
 
 	return nil
@@ -91,29 +90,29 @@ func (c *Client) PostForm(url string, vals url.Values, respModel interface{}) er
 func (c *Client) PostJson(url string, reqModel, respModel interface{}) error {
 	b, err := json.Marshal(reqModel)
 	if err != nil {
-		return fmt.Errorf(net.MARSHAL_JSON_ERROR, err)
+		return fmt.Errorf(api.MARSHAL_JSON_ERROR, err)
 	}
 
-	req, err := http.NewRequest(net.HTTP_METHOD_POST, url, bytes.NewBuffer(b))
+	req, err := http.NewRequest(api.HTTP_METHOD_POST, url, bytes.NewBuffer(b))
 	if err != nil {
-		return fmt.Errorf(net.NEW_REQUEST_ERROR, err, url)
+		return fmt.Errorf(api.NEW_REQUEST_ERROR, err, url)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.session.Do(req)
 	if err != nil {
-		return fmt.Errorf(net.DO_REQUEST_ERROR, err, url)
+		return fmt.Errorf(api.DO_REQUEST_ERROR, err, url)
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf(net.READ_RESP_BODY_ERROR, err, url)
+		return fmt.Errorf(api.READ_RESP_BODY_ERROR, err, url)
 	}
 
 	err = json.Unmarshal(body, respModel)
 	if err != nil {
-		return fmt.Errorf(net.UNMARSHAL_JSON_ERROR, err)
+		return fmt.Errorf(api.UNMARSHAL_JSON_ERROR, err)
 	}
 
 	return nil

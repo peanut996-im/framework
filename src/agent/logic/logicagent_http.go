@@ -7,7 +7,6 @@ import (
 	"framework/api"
 	"framework/cfgargs"
 	"framework/logger"
-	"framework/net"
 	"framework/net/http"
 )
 
@@ -36,29 +35,35 @@ func (l *LogicAgentHttp) Init(cfg *cfgargs.SrvConfig) {
 	// global
 	logicAgent = l
 }
-func (l *LogicAgentHttp) Auth(token string) (*api.User, error) {
+
+//Auth Authentication from the logic layer
+func (l *LogicAgentHttp) Auth(token string) (interface{}, error) {
 	url := l.logicAddr + "/auth"
 	resp, body, errs := l.client.GetGoReq().Post(url).Send(fmt.Sprintf(`{ "token": "%v"}`, token)).End()
 	if resp.StatusCode != 200 {
+		logger.Debug("err here")
 		return nil, errors.New(fmt.Sprintf("LogicAgent Auth http failed code: %v", resp.StatusCode))
 	}
 	if len(errs) != 0 {
 		for i, err := range errs {
 			logger.Info("logicAgent Auth failed. errs[%v]: %v ", i, err)
 		}
+		logger.Debug("err here")
 		return nil, errs[0]
 	}
-	user := &api.User{}
-	j := make(map[string]interface{})
-	err := json.Unmarshal([]byte(body), &j)
-	if j["code"] != net.ERROR_CODE_OK {
-		return nil, errors.New(fmt.Sprintf("logicAgent Auth failed. err: %v", j["message"]))
+	r := &api.BaseRepsonse{}
+	err := json.Unmarshal([]byte(body), r)
+	if r.Code != api.ERROR_CODE_OK {
+		logger.Debug("err here")
+		return nil, errors.New(fmt.Sprintf("logicAgent Auth failed. err: %v", r.Message))
 	}
-	err = json.Unmarshal([]byte(j["data"].(string)), user)
 	if nil != err {
+		logger.Debug("err here")
+		logger.Info("logicAgent Auth failed. json format err: %v ", err)
 		return nil, err
 	}
-	return user, nil
+	// Data is model.User
+	return r.Data, nil
 }
 
 func (l *LogicAgentHttp) GetUserInfo() {
@@ -67,4 +72,22 @@ func (l *LogicAgentHttp) GetUserInfo() {
 
 func (l *LogicAgentHttp) CheckToken() {
 
+}
+
+func (l *LogicAgentHttp) LoadInitData(uid string) (interface{}, error) {
+	url := l.logicAddr + "/load"
+	resp, body, errs := l.client.GetGoReq().Post(url).Send(fmt.Sprintf(`{ "user_id": "%v"}`, uid)).End()
+	if resp.StatusCode != 200 {
+		logger.Debug("err here")
+		return nil, errors.New(fmt.Sprintf("LogicAgent Auth http failed code: %v", resp.StatusCode))
+	}
+	if len(errs) != 0 {
+		for i, err := range errs {
+			logger.Info("logicAgent Auth failed. errs[%v]: %v ", i, err)
+		}
+		logger.Debug("err here")
+		return "", errs[0]
+	}
+	// forwards to user need raw json
+	return json.RawMessage(body), nil
 }

@@ -1,8 +1,4 @@
-package net
-
-import (
-	"fmt"
-)
+package api
 
 const (
 	// response code
@@ -49,76 +45,8 @@ var (
 		// ERROR_UNMARSHAL_JSON:     "Unmarshal json  err: %v",
 		// ERROR_MARSHAL_JSON:       "Marshal json  err: %v",
 	}
-
-	SignInvaildResp = &BaseRepsonse{
-		Code:    ERROR_SIGN_INVAILD,
-		Message: fmt.Sprint(ErrorCodeToString(ERROR_SIGN_INVAILD)),
-		Data:    nil,
-	}
-
-	ResourceExistsResp = &BaseRepsonse{
-		Code:    ERROR_HTTP_RESOURCE_EXISTS,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_EXISTS), nil),
-		Data:    nil,
-	}
-
-	ResourceNotFoundResp = &BaseRepsonse{
-		Code:    ERROR_HTTP_RESOURCE_NOT_FOUND,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_NOT_FOUND), nil),
-		Data:    nil,
-	}
-
-	AuthFaildResp = &BaseRepsonse{
-		Code:    ERROR_AUTH_FAILED,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_AUTH_FAILED)),
-		Data:    nil,
-	}
-
-	TokenInvaildResp = &BaseRepsonse{
-		Code:    ERROR_TOKEN_INVALID,
-		Message: fmt.Sprint(ErrorCodeToString(ERROR_TOKEN_INVALID)),
-		Data:    nil,
-	}
 )
 
 func ErrorCodeToString(code int) string {
 	return respCodeInfo[code]
-}
-
-type BaseRepsonse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-}
-
-func NewBaseResponse(code int, data interface{}) *BaseRepsonse {
-	return &BaseRepsonse{
-		Code:    code,
-		Data:    data,
-		Message: ErrorCodeToString(code),
-	}
-}
-
-func NewHttpInnerErrorResp(err error) *BaseRepsonse {
-	return &BaseRepsonse{
-		Code:    ERROR_HTTP_INNER_ERROR,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_INNER_ERROR), err),
-		Data:    nil,
-	}
-}
-
-func NewSuccessResponse(data interface{}) *BaseRepsonse {
-	return &BaseRepsonse{
-		Code:    ERROR_CODE_OK,
-		Data:    data,
-		Message: ErrorCodeToString(ERROR_CODE_OK),
-	}
-}
-
-func NewResourceExistsResp(err error) *BaseRepsonse {
-	return &BaseRepsonse{
-		Code:    ERROR_HTTP_RESOURCE_EXISTS,
-		Data:    nil,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_EXISTS), err),
-	}
 }
