@@ -6,6 +6,6 @@
 package model
 
 type Friend struct {
-	FriendID      string `json:"friend_id"`
+	FriendA       string `json:"friend_a"`
 	FriendAccount string `json:"friend_account"`
 }
