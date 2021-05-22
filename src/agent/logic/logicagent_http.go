@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"framework/api"
 	"framework/cfgargs"
 	"framework/logger"
 	"framework/net/http"
@@ -51,19 +50,19 @@ func (l *LogicAgentHttp) Auth(token string) (interface{}, error) {
 		logger.Debug("err here")
 		return nil, errs[0]
 	}
-	r := &api.BaseRepsonse{}
-	err := json.Unmarshal([]byte(body), r)
-	if r.Code != api.ERROR_CODE_OK {
-		logger.Debug("err here")
-		return nil, errors.New(fmt.Sprintf("logicAgent Auth failed. err: %v", r.Message))
-	}
-	if nil != err {
-		logger.Debug("err here")
-		logger.Info("logicAgent Auth failed. json format err: %v ", err)
-		return nil, err
-	}
+	//r := &api.BaseRepsonse{}
+	//err := json.Unmarshal([]byte(body), r)
+	//if r.Code != api.ERROR_CODE_OK {
+	//	logger.Debug("err here")
+	//	return nil, errors.New(fmt.Sprintf("logicAgent Auth failed. err: %v", r.Message))
+	//}
+	//if nil != err {
+	//	logger.Debug("err here")
+	//	logger.Info("logicAgent Auth failed. json format err: %v ", err)
+	//	return nil, err
+	//}
 	// Data is model.User
-	return r.Data, nil
+	return json.RawMessage(body), nil
 }
 
 func (l *LogicAgentHttp) GetUserInfo() {
