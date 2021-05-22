@@ -8,10 +8,10 @@ import (
 )
 
 type Room struct {
-	RoomID     string `json:"room_id"`
-	OneToOne   bool   `json:"one_to_one"`
-	Status     string `json:"status"`
-	CreateTime int64  `json:"create_time,omitempty"`
+	RoomID     string `json:"roomID" bson:"roomID"`
+	OneToOne   bool   `json:"oneToOne" bson:"oneToOne"`
+	Status     string `json:"status" bson:"status"`
+	CreateTime int64  `json:"createTime,omitempty" bson:"createTime"`
 }
 
 func newRoom() *Room {

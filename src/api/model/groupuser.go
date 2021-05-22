@@ -12,8 +12,8 @@ import (
 )
 
 type GroupUser struct {
-	GroupId string `json:"group_id" bson:"groupID"`
-	UID     string `json:"user_id" bson:"UID"`
+	GroupId string `json:"groupID" bson:"groupID"`
+	UID     string `json:"userID" bson:"uid"`
 }
 
 func NewGroupUser() *GroupUser {
@@ -44,7 +44,7 @@ func CreateGroupUser(group, user string) error {
 
 func DeleteGroupUser(group, user string) error {
 	mongo := db.GetLastMongoClient()
-	filter := bson.M{"groupID": group, "UID": user}
+	filter := bson.M{"groupID": group, "uid": user}
 	if _, err := mongo.DeleteOne("GroupUser", filter); nil != err {
 		return err
 	}

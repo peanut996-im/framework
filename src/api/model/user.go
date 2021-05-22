@@ -14,7 +14,7 @@ type User struct {
 	Password string `json:"-" bson:"password"`
 }
 
-//NewUser returns a User who UID generate by snowlake Algorithm
+//NewUser returns a User who UID generate by snowflake Algorithm
 func NewUser(account string, password string) *User {
 	return &User{
 		UID:      api.NewSnowFlakeID(),

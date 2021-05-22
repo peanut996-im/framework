@@ -13,11 +13,11 @@ import (
 )
 
 type Group struct {
-	RoomID     string `json:"room_id" bson:"roomID"`
-	GroupID    string `json:"group_id" bson:"groupID"`
-	GroupName  string `json:"group_name" bson:"groupName"`
-	GroupAdmin string `json:"group_admin" bson:"groupAdmin"`
-	CreateTime int64  `json:"create_time" bson:"createTime"`
+	RoomID     string `json:"roomID" bson:"roomID"`
+	GroupID    string `json:"groupID" bson:"groupID"`
+	GroupName  string `json:"groupName" bson:"groupName"`
+	GroupAdmin string `json:"groupAdmin" bson:"groupAdmin"`
+	CreateTime int64  `json:"createTime" bson:"createTime"`
 }
 
 func NewGroup() *Group {

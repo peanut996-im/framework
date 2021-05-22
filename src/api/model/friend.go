@@ -13,9 +13,9 @@ import (
 )
 
 type Friend struct {
-	FriendA string `json:"friend_a" bson:"userA"`
-	FriendB string `json:"friend_b" bson:"userB"`
-	RoomID  string `json:"room_id" bson:"roomID"`
+	FriendA string `json:"friendA" bson:"userA"`
+	FriendB string `json:"friendB" bson:"userB"`
+	RoomID  string `json:"roomID" bson:"roomID"`
 }
 
 func NewFriend() *Friend {
