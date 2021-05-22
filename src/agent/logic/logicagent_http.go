@@ -39,17 +39,17 @@ func (l *LogicAgentHttp) Init(cfg *cfgargs.SrvConfig) {
 func (l *LogicAgentHttp) Auth(token string) (interface{}, error) {
 	url := l.logicAddr + "/auth"
 	resp, body, errs := l.client.GetGoReq().Post(url).Send(fmt.Sprintf(`{ "token": "%v"}`, token)).End()
-	if resp.StatusCode != 200 {
-		logger.Debug("err here")
-		return nil, errors.New(fmt.Sprintf("LogicAgent Auth http failed code: %v", resp.StatusCode))
-	}
 	if len(errs) != 0 {
 		for i, err := range errs {
 			logger.Info("logicAgent Auth failed. errs[%v]: %v ", i, err)
 		}
-		logger.Debug("err here")
 		return nil, errs[0]
 	}
+	if resp.StatusCode != 200 {
+		logger.Debug("err here")
+		return nil, errors.New(fmt.Sprintf("LogicAgent Auth http failed code: %v", resp.StatusCode))
+	}
+
 	//r := &api.BaseRepsonse{}
 	//err := json.Unmarshal([]byte(body), r)
 	//if r.Code != api.ERROR_CODE_OK {
