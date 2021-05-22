@@ -57,3 +57,7 @@ func InsertUser(user *User) error {
 	logger.Info("Mongo insert user success, id: %v", res.InsertedID)
 	return nil
 }
+
+func (u *User) AddNewFriend() {
+
+}
