@@ -11,7 +11,6 @@ import (
 	"framework/db"
 	"framework/encoding"
 	"framework/logger"
-	"go.mongodb.org/mongo-driver/bson"
 	"time"
 )
 
@@ -26,7 +25,6 @@ const (
 
 func CheckToken(token string) (*model.User, error) {
 	rds := db.GetLastRedisClient()
-	mongo := db.GetLastMongoClient()
 
 	uid, err := rds.Get(TokenToUIDFormat(token))
 
@@ -36,16 +34,7 @@ func CheckToken(token string) (*model.User, error) {
 	}
 
 	logger.Debug("mongo filter uid: %v", uid)
-
-	filter := bson.M{"uid": uid}
-	user := &model.User{}
-	err = mongo.FindOne("User", user, filter)
-	if err != nil {
-		logger.Info("mongo get user from uid err: %v, uid: %v", err, uid)
-		return nil, err
-	}
-
-	return user, nil
+	return model.GetUserByUID(uid)
 }
 
 //InsertToken token插入数据库，若已存在则直接返回已存在的token
