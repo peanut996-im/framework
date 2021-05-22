@@ -20,3 +20,11 @@ func NewUser(account string, password string) *User {
 		Password: password,
 	}
 }
+
+func GetUserByAccount(account string) *User {
+	return nil
+}
+
+func GetUserByUID(uid string) *User {
+	return nil
+}
