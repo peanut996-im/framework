@@ -47,7 +47,7 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 			if !checkResult || err != nil {
 				logger.Debug("check sign with json failed: body: %v", body)
 				if !cfg.HTTP.Release {
-					sign, err := api.MakeSignWithJsonString(body, cfg.AppKey)
+					sign, err := api.MakeSignWithJsonParams(body, cfg.AppKey)
 					if err == nil {
 						c.AbortWithStatusJSON(http.StatusOK, api.NewBaseResponse(api.ERROR_SIGN_INVAILD, gin.H{"sign": sign}))
 						return
