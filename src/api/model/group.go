@@ -6,9 +6,9 @@
 package model
 
 import (
-	"framework/api"
 	"framework/db"
 	"framework/logger"
+	"framework/tool"
 	"time"
 )
 
@@ -22,7 +22,7 @@ type Group struct {
 
 func NewGroup() *Group {
 	return &Group{
-		GroupID:    api.NewSnowFlakeID(),
+		GroupID:    tool.NewSnowFlakeID(),
 		CreateTime: time.Now().Unix(),
 	}
 }

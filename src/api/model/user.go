@@ -1,9 +1,9 @@
 package model
 
 import (
-	"framework/api"
 	"framework/db"
 	"framework/logger"
+	"framework/tool"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -17,7 +17,7 @@ type User struct {
 //NewUser returns a User who UID generate by snowflake Algorithm
 func NewUser(account string, password string) *User {
 	return &User{
-		UID:      api.NewSnowFlakeID(),
+		UID:      tool.NewSnowFlakeID(),
 		Account:  account,
 		Password: password,
 	}

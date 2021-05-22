@@ -7,19 +7,12 @@ package api
 
 import (
 	"fmt"
-	"framework/api/model"
 )
 
 type BaseRepsonse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
-}
-
-type AuthResponse struct {
-	Code    int        `json:"code"`
-	Message string     `json:"message"`
-	Data    model.User `json:"data"`
 }
 
 var (

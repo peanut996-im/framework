@@ -3,7 +3,7 @@
 // @Description  提供需要的简化的编码操作
 // @Author  peanut996
 // @Update  peanut996  2021/5/22 1:47
-package encoding
+package tool
 
 import (
 	"crypto/sha1"

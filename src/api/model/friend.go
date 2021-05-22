@@ -6,9 +6,9 @@
 package model
 
 import (
-	"framework/api"
 	"framework/db"
 	"framework/logger"
+	"framework/tool"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -96,5 +96,5 @@ func GetAllFriends(user string) ([]string, error) {
 	for _, friend := range friendsB {
 		friends = append(friends, friend.FriendA)
 	}
-	return api.RemoveDuplicateString(friends), nil
+	return tool.RemoveDuplicateString(friends), nil
 }

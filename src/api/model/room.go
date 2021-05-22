@@ -1,9 +1,9 @@
 package model
 
 import (
-	"framework/api"
 	"framework/db"
 	"framework/logger"
+	"framework/tool"
 	"time"
 )
 
@@ -16,7 +16,7 @@ type Room struct {
 
 func newRoom() *Room {
 	return &Room{
-		RoomID:     api.NewSnowFlakeID(),
+		RoomID:     tool.NewSnowFlakeID(),
 		CreateTime: time.Now().Unix(),
 		OneToOne:   false,
 	}

@@ -8,8 +8,9 @@ package api
 import (
 	"fmt"
 	"framework/api/model"
+	"framework/tool"
+
 	"framework/db"
-	"framework/encoding"
 	"framework/logger"
 	"time"
 )
@@ -74,7 +75,7 @@ func InsertToken(uid string) (string, error) {
 func GenerateToken(uid string) string {
 	ts := time.Now().Unix()
 	origin := fmt.Sprintf("%v_%v", uid, ts)
-	return encoding.EncryptBySha1(origin)
+	return tool.EncryptBySha1(origin)
 }
 
 func DeleteToken(token string) error {
