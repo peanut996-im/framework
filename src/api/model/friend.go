@@ -6,49 +6,95 @@
 package model
 
 import (
+	"framework/api"
 	"framework/db"
 	"framework/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Friend struct {
-	FriendA string `json:"friend_a"`
-	FriendB string `json:"friend_b"`
-	RoomID  string `json:"room_id"`
+	FriendA string `json:"friend_a" bson:"userA"`
+	FriendB string `json:"friend_b" bson:"userB"`
+	RoomID  string `json:"room_id" bson:"roomID"`
 }
 
 func NewFriend() *Friend {
 	return &Friend{}
 }
 
-func InsertFriend(friendA, friendB string) error {
-	f := NewFriend()
-	f.FriendA = friendA
-	f.FriendB = friendB
+func insertFriend(friend *Friend) error {
+	mongo := db.GetLastMongoClient()
 	r := NewFriendRoom()
-	f.RoomID = r.RoomID
+	friend.RoomID = r.RoomID
 	// First try to insert the room
-	err := InsertRoom(r)
+	err := insertRoom(r)
 	if nil != err {
 		logger.Error("InsertFriendRoom err: %v", err)
 		return err
 	}
 	// Second try to insert the friend relationship
-	err = insertFriend(f)
-	if nil != err {
-		logger.Error("InsertFriend err: %v", err)
-		return err
-	}
-
-	return nil
-}
-
-func insertFriend(friend *Friend) error {
-	mongo := db.GetLastMongoClient()
-	res, err := mongo.InsertOne("Friend", friend)
-	if err != nil {
+	if _, err := mongo.InsertOne("Friend", friend); err != nil {
 		logger.Error("mongo insert friend err: %v", err)
 		return err
 	}
-	logger.Info("Mongo insert friend success, id: %v", res.InsertedID)
+	//Symmetrical insertion
+	oppositeFriend := NewFriend()
+	oppositeFriend.FriendA = friend.FriendB
+	oppositeFriend.FriendB = friend.FriendA
+	if _, err = mongo.InsertOne("Friend", oppositeFriend); err != nil {
+		logger.Error("mongo insert oppositefriend err: %v", err)
+		return err
+	}
 	return nil
+}
+
+//AddNewFriend Add friends by UID
+func AddNewFriend(friendA, friendB string) error {
+	f := NewFriend()
+	f.FriendA = friendA
+	f.FriendB = friendB
+	if err := insertFriend(f); nil != err {
+		return err
+	}
+	return nil
+}
+
+func DeleteFriend(origin, target string) error {
+	mongo := db.GetLastMongoClient()
+	filter := bson.D{{
+		"userA",
+		bson.D{{
+			"$in",
+			bson.A{origin, target},
+		}},
+	}}
+	_, err := mongo.DeleteMany("Friend", filter)
+	if err != nil {
+		return nil
+	}
+	return nil
+}
+
+func GetAllFriends(user string) ([]string, error) {
+	mongo := db.GetLastMongoClient()
+	friends := make([]string, 0)
+	filterA := bson.M{"userA": user}
+	friendsA := []Friend{}
+	if err := mongo.Find("Friend", &friendsA, filterA); nil != err {
+		logger.Debug("Find friendB err: %v", err)
+		return nil, err
+	}
+	for _, friend := range friendsA {
+		friends = append(friends, friend.FriendB)
+	}
+	filterB := bson.M{"userB": user}
+	friendsB := []Friend{}
+	if err := mongo.Find("Friend", &friendsB, filterB); nil != err {
+		logger.Debug("Find friendA err: %v", err)
+		return nil, err
+	}
+	for _, friend := range friendsB {
+		friends = append(friends, friend.FriendA)
+	}
+	return api.RemoveDuplicateString(friends), nil
 }

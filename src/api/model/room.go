@@ -1,8 +1,8 @@
 package model
 
 import (
+	"framework/api"
 	"framework/db"
-	"framework/encoding"
 	"framework/logger"
 	"time"
 )
@@ -16,7 +16,7 @@ type Room struct {
 
 func newRoom() *Room {
 	return &Room{
-		RoomID:     encoding.NewSnowFlakeID(),
+		RoomID:     api.NewSnowFlakeID(),
 		CreateTime: time.Now().Unix(),
 		OneToOne:   false,
 	}
@@ -34,7 +34,7 @@ func NewFriendRoom() *Room {
 	return r
 }
 
-func InsertRoom(room *Room) error {
+func insertRoom(room *Room) error {
 	mongo := db.GetLastMongoClient()
 	res, err := mongo.InsertOne("Room", room)
 	if err != nil {

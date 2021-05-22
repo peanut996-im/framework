@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"fmt"
+	"github.com/bwmarrin/snowflake"
 	"io"
 	"net/url"
 	"reflect"
@@ -144,4 +145,21 @@ func MakeSignWithJsonParams(s string, appkey string) (string, error) {
 
 	}
 	return MakeSignWithQueryParams(vals, appkey)
+}
+
+func RemoveDuplicateString(origin []string) []string {
+	result := make([]string, 0, len(origin))
+	temp := map[string]struct{}{}
+	for _, item := range origin {
+		if _, ok := temp[item]; !ok {
+			temp[item] = struct{}{}
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
+func NewSnowFlakeID() string {
+	node, _ := snowflake.NewNode(1)
+	return node.Generate().String()
 }

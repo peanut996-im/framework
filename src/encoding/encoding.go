@@ -8,14 +8,8 @@ package encoding
 import (
 	"crypto/sha1"
 	"fmt"
-	"github.com/bwmarrin/snowflake"
 	"github.com/mitchellh/mapstructure"
 )
-
-func NewSnowFlakeID() string {
-	node, _ := snowflake.NewNode(1)
-	return node.Generate().String()
-}
 
 func EncryptBySha1(plain string) string {
 	h := sha1.New()

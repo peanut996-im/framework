@@ -1,23 +1,23 @@
 package model
 
 import (
+	"framework/api"
 	"framework/db"
-	"framework/encoding"
 	"framework/logger"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 //User means a people who use the system.
 type User struct {
-	UID      string `json:"uid,omitempty"`
-	Account  string `json:"account"`
-	Password string `json:"-"`
+	UID      string `json:"uid,omitempty" bson:"uid"`
+	Account  string `json:"account" bson:"account"`
+	Password string `json:"-" bson:"password"`
 }
 
 //NewUser returns a User who UID generate by snowlake Algorithm
 func NewUser(account string, password string) *User {
 	return &User{
-		UID:      encoding.NewSnowFlakeID(),
+		UID:      api.NewSnowFlakeID(),
 		Account:  account,
 		Password: password,
 	}
@@ -56,8 +56,4 @@ func InsertUser(user *User) error {
 	}
 	logger.Info("Mongo insert user success, id: %v", res.InsertedID)
 	return nil
-}
-
-func (u *User) AddNewFriend() {
-
 }
