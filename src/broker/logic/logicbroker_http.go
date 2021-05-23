@@ -26,13 +26,12 @@ func (l *LogicBrokerHttp) Send(event string, data interface{}) (interface{}, err
 		rawJson = fmt.Sprintf(`{ "token": "%v"}`, data.(string))
 	case api.EventLoad:
 		rawJson = fmt.Sprintf(`{ "uid": "%v"}`, data.(string))
-	case api.EventAddFriend:
-	case api.EventDeleteFriend:
-	case api.EventCreateGroup:
-	case api.EventJoinGroup:
-	case api.EventLeaveGroup:
 	default:
-		return nil, nil
+		bytes, err := json.Marshal(data)
+		if err != nil{
+			return nil,errors.New(fmt.Sprintf(api.UnmarshalJsonError,err))
+		}
+		rawJson = string(bytes)
 	}
 	resp, body, errs := l.client.GetGoReq().Post(url).Send(rawJson).End()
 	if len(errs) != 0 {
