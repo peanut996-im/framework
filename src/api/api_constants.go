@@ -1,6 +1,8 @@
 package api
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	EventAuth         = "auth"
@@ -44,7 +46,7 @@ const (
 )
 
 var (
-	respCodeInfo = map[int]string{
+	respCodeErrorFormat = map[int]string{
 		ErrorCodeOK:               "Success",
 		ErrorTokenInvalid:         "Token invalid.",
 		ErrorHttpInnerError:       "Http inner error err: %v",
@@ -59,12 +61,37 @@ var (
 		// ERROR_UNMARSHAL_JSON:     "Unmarshal json  err: %v",
 		// ERROR_MARSHAL_JSON:       "Marshal json  err: %v",
 	}
+	respCodeErrorString = map[int]string{
+		ErrorCodeOK:               "Success",
+		ErrorTokenInvalid:         "Token invalid.",
+		ErrorHttpInnerError:       "Http inner error",
+		ErrorHttpParamInvalid:     "Http param invalid",
+		ErrorSignInvalid:          "Sign invalid.",
+		ErrorHttpResourceExists:   "Http resource already exists.",
+		ErrorHttpResourceNotFound: "Http resource not found.",
+		ErrorAuthFailed:           "Authentication failed",
+
+		// ERROR_REDIS:              "Redis error err: %v",
+		// ERROR_MONGO:              "Mongo error err: %v",
+		// ERROR_UNMARSHAL_JSON:     "Unmarshal json  err: %v",
+		// ERROR_MARSHAL_JSON:       "Marshal json  err: %v",
+	}
 )
 
-func ErrorCodeToString(code int) string {
-	return respCodeInfo[code]
+func ErrorCodeToFormat(code int) string{
+	return respCodeErrorFormat[code]
 }
 
-func ErrorStringToError(err string) error {
-	return errors.New(err)
+//func ErrorCodeToError(code int,err error) string{
+//	return fmt.Sprintf(respCodeErrorFormat[code],err)
+//}
+
+
+
+func ErrorCodeToString(code int) string {
+	return respCodeErrorString[code]
+}
+
+func ErrorCodeToError(code int) error {
+	return errors.New(ErrorCodeToString(code))
 }

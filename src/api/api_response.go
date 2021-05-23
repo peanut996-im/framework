@@ -18,31 +18,31 @@ type BaseRepsonse struct {
 var (
 	SignInvaildResp = &BaseRepsonse{
 		Code:    ErrorSignInvalid,
-		Message: fmt.Sprint(ErrorCodeToString(ErrorSignInvalid)),
+		Message:  ErrorCodeToString(ErrorSignInvalid),
 		Data:    nil,
 	}
 
 	ResourceExistsResp = &BaseRepsonse{
 		Code:    ErrorHttpResourceExists,
-		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpResourceExists), nil),
+		Message: ErrorCodeToString(ErrorHttpResourceExists),
 		Data:    nil,
 	}
 
 	ResourceNotFoundResp = &BaseRepsonse{
 		Code:    ErrorHttpResourceNotFound,
-		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpResourceNotFound), nil),
+		Message: ErrorCodeToString(ErrorHttpResourceNotFound),
 		Data:    nil,
 	}
 
 	AuthFaildResp = &BaseRepsonse{
 		Code:    ErrorAuthFailed,
-		Message: fmt.Sprintf(ErrorCodeToString(ErrorAuthFailed)),
+		Message: ErrorCodeToString(ErrorAuthFailed),
 		Data:    nil,
 	}
 
 	TokenInvaildResp = &BaseRepsonse{
 		Code:    ErrorTokenInvalid,
-		Message: fmt.Sprint(ErrorCodeToString(ErrorTokenInvalid)),
+		Message: ErrorCodeToString(ErrorTokenInvalid),
 		Data:    nil,
 	}
 )
@@ -58,7 +58,7 @@ func NewBaseResponse(code int, data interface{}) *BaseRepsonse {
 func NewHttpInnerErrorResponse(err error) *BaseRepsonse {
 	return &BaseRepsonse{
 		Code:    ErrorHttpInnerError,
-		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpInnerError), err),
+		Message: fmt.Sprintf(ErrorCodeToFormat(ErrorHttpInnerError), err),
 		Data:    nil,
 	}
 }
@@ -67,7 +67,7 @@ func NewSuccessResponse(data interface{}) *BaseRepsonse {
 	return &BaseRepsonse{
 		Code:    ErrorCodeOK,
 		Data:    data,
-		Message: ErrorCodeToString(ErrorCodeOK),
+		Message: ErrorCodeToFormat(ErrorCodeOK),
 	}
 }
 
@@ -75,6 +75,6 @@ func NewResourceExistsResponse(err error) *BaseRepsonse {
 	return &BaseRepsonse{
 		Code:    ErrorHttpResourceExists,
 		Data:    nil,
-		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpResourceExists), err),
+		Message: fmt.Sprintf(ErrorCodeToFormat(ErrorHttpResourceExists), err),
 	}
 }
