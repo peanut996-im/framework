@@ -39,6 +39,8 @@ const (
 	ReadRespBodyError  string = "Read resp body err: %v, url: %v"
 	MarshalJsonError   string = "Marshal json  err: %v"
 	UnmarshalJsonError string = "Unmarshal json  err: %v"
+	MongoDBError       string = "Mongo operation failed. err: %v"
+	RedisError         string = "Redis operation failed. err: %v"
 )
 
 var (
