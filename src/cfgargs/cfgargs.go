@@ -37,7 +37,8 @@ type Build struct {
 }
 
 type SocketIO struct {
-	Port int `yaml:"port"`
+	Port int  `yaml:"port"`
+	Cors bool `yaml:"cors"`
 }
 
 type HTTP struct {
