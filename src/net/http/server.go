@@ -91,15 +91,15 @@ func (s *Server) mountRoutes() {
 
 func methodMapper(group *gin.RouterGroup, method string) func(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes {
 	switch method {
-	case api.HTTP_METHOD_GET:
+	case api.HTTPMethodGet:
 		return group.GET
-	case api.HTTP_METHOD_POST:
+	case api.HTTPMethodPost:
 		return group.POST
-	case api.HTTP_METHOD_PUT:
+	case api.HTTPMethodPut:
 		return group.PUT
-	case api.HTTP_METHOD_DELETE:
+	case api.HTTPMethodDelete:
 		return group.DELETE
-	case api.HTTP_METHOD_PATCH:
+	case api.HTTPMethodPatch:
 		return group.PATCH
 	default:
 		return group.Any

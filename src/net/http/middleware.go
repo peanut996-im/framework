@@ -34,7 +34,7 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 				if !cfg.HTTP.Release {
 					sign, err := api.MakeSignWithQueryParams(c.Request.URL.Query(), cfg.AppKey)
 					if err == nil {
-						c.AbortWithStatusJSON(http.StatusOK, api.NewBaseResponse(api.ERROR_SIGN_INVAILD, gin.H{"sign": sign}))
+						c.AbortWithStatusJSON(http.StatusOK, api.NewBaseResponse(api.ErrorSignInvalid, gin.H{"sign": sign}))
 						return
 					}
 				}
@@ -49,7 +49,7 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 				if !cfg.HTTP.Release {
 					sign, err := api.MakeSignWithJsonParams(body, cfg.AppKey)
 					if err == nil {
-						c.AbortWithStatusJSON(http.StatusOK, api.NewBaseResponse(api.ERROR_SIGN_INVAILD, gin.H{"sign": sign}))
+						c.AbortWithStatusJSON(http.StatusOK, api.NewBaseResponse(api.ErrorSignInvalid, gin.H{"sign": sign}))
 						return
 					}
 				}

@@ -43,18 +43,18 @@ func (s *Server) AcceptSession(session *Session, query string) (error int) {
 	sign, _ := api.MakeSignWithQueryParams(vals, cfgargs.GetLastSrvConfig().AppKey)
 	if sign != vals.Get("sign") {
 		logger.Info("Session[%v]'s  sign: %v", session.ToString(), sign)
-		return api.ERROR_SIGN_INVAILD
+		return api.ErrorSignInvalid
 	}
 	if nil != err {
 		logger.Info("parse token failed, err: %v", err)
-		return api.ERROR_TOKEN_INVALID
+		return api.ErrorTokenInvalid
 	}
 
 	t := vals.Get("token")
 	_, err = session.Auth(t)
 	if err != nil {
 		logger.Info("token not valid, session:[%v], err:[%v]", session.ToString(), error)
-		return api.ERROR_TOKEN_INVALID
+		return api.ErrorTokenInvalid
 	}
 	logger.Info("Session.Accept succeed, session:[%v]", session.ToString())
 
@@ -64,7 +64,7 @@ func (s *Server) AcceptSession(session *Session, query string) (error int) {
 	s.Unlock()
 
 	logger.Info("Session.Accept done. Session[%v]", session.ToString())
-	return api.ERROR_CODE_OK
+	return api.ErrorCodeOK
 
 }
 

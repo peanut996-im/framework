@@ -17,32 +17,32 @@ type BaseRepsonse struct {
 
 var (
 	SignInvaildResp = &BaseRepsonse{
-		Code:    ERROR_SIGN_INVAILD,
-		Message: fmt.Sprint(ErrorCodeToString(ERROR_SIGN_INVAILD)),
+		Code:    ErrorSignInvalid,
+		Message: fmt.Sprint(ErrorCodeToString(ErrorSignInvalid)),
 		Data:    nil,
 	}
 
 	ResourceExistsResp = &BaseRepsonse{
-		Code:    ERROR_HTTP_RESOURCE_EXISTS,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_EXISTS), nil),
+		Code:    ErrorHttpResourceExists,
+		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpResourceExists), nil),
 		Data:    nil,
 	}
 
 	ResourceNotFoundResp = &BaseRepsonse{
-		Code:    ERROR_HTTP_RESOURCE_NOT_FOUND,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_NOT_FOUND), nil),
+		Code:    ErrorHttpResourceNotFound,
+		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpResourceNotFound), nil),
 		Data:    nil,
 	}
 
 	AuthFaildResp = &BaseRepsonse{
-		Code:    ERROR_AUTH_FAILED,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_AUTH_FAILED)),
+		Code:    ErrorAuthFailed,
+		Message: fmt.Sprintf(ErrorCodeToString(ErrorAuthFailed)),
 		Data:    nil,
 	}
 
 	TokenInvaildResp = &BaseRepsonse{
-		Code:    ERROR_TOKEN_INVALID,
-		Message: fmt.Sprint(ErrorCodeToString(ERROR_TOKEN_INVALID)),
+		Code:    ErrorTokenInvalid,
+		Message: fmt.Sprint(ErrorCodeToString(ErrorTokenInvalid)),
 		Data:    nil,
 	}
 )
@@ -57,24 +57,24 @@ func NewBaseResponse(code int, data interface{}) *BaseRepsonse {
 
 func NewHttpInnerErrorResponse(err error) *BaseRepsonse {
 	return &BaseRepsonse{
-		Code:    ERROR_HTTP_INNER_ERROR,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_INNER_ERROR), err),
+		Code:    ErrorHttpInnerError,
+		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpInnerError), err),
 		Data:    nil,
 	}
 }
 
 func NewSuccessResponse(data interface{}) *BaseRepsonse {
 	return &BaseRepsonse{
-		Code:    ERROR_CODE_OK,
+		Code:    ErrorCodeOK,
 		Data:    data,
-		Message: ErrorCodeToString(ERROR_CODE_OK),
+		Message: ErrorCodeToString(ErrorCodeOK),
 	}
 }
 
 func NewResourceExistsResponse(err error) *BaseRepsonse {
 	return &BaseRepsonse{
-		Code:    ERROR_HTTP_RESOURCE_EXISTS,
+		Code:    ErrorHttpResourceExists,
 		Data:    nil,
-		Message: fmt.Sprintf(ErrorCodeToString(ERROR_HTTP_RESOURCE_EXISTS), err),
+		Message: fmt.Sprintf(ErrorCodeToString(ErrorHttpResourceExists), err),
 	}
 }
