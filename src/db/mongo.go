@@ -207,7 +207,7 @@ func (m *MongoClient) DeleteMany(collection string, filter interface{},
 	opts ...*options.DeleteOptions) (*mongo.DeleteResult, error) {
 	ctx, cancel := context.WithTimeout(m.ctx, m.timeout)
 	defer cancel()
-	return m.GetCollectionHandle(collection).DeleteOne(ctx, filter, opts...)
+	return m.GetCollectionHandle(collection).DeleteMany(ctx, filter, opts...)
 }
 
 //UpdateByID ...
