@@ -1,5 +1,18 @@
 package api
 
+import "errors"
+
+const (
+	EventAuth         = "auth"
+	EventLoad         = "load"
+	EventAddFriend    = "addFriend"
+	EventDeleteFriend = "deleteFriend"
+	EventCreateGroup  = "createGroup"
+	EventJoinGroup    = "joinGroup"
+	EventLeaveGroup   = "leaveGroup"
+	EventChat         = "chat"
+)
+
 const (
 	// response code
 	ERROR_CODE_OK      = 0
