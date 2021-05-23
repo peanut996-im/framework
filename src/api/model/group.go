@@ -8,7 +8,6 @@ package model
 import (
 	"framework/db"
 	"framework/tool"
-	"time"
 )
 
 type Group struct {
@@ -16,19 +15,18 @@ type Group struct {
 	GroupID    string `json:"groupID" bson:"groupID"`
 	GroupName  string `json:"groupName" bson:"groupName"`
 	GroupAdmin string `json:"groupAdmin" bson:"groupAdmin"`
-	CreateTime int64  `json:"createTime" bson:"createTime"`
+	CreateTime string `json:"-" bson:"createTime"`
 }
 
 func NewGroup() *Group {
 	return &Group{
 		GroupID:    tool.NewSnowFlakeID(),
-		CreateTime: time.Now().Unix(),
+		CreateTime: tool.GetNowUnixMilliSecond(),
 	}
 }
 
-func insertGroup(group *Group) error {
+func insertGroup(g *Group) error {
 	mongo := db.GetLastMongoClient()
-	g := NewGroup()
 	r := NewGroupRoom()
 	g.RoomID = r.RoomID
 	g.GroupID = r.RoomID
@@ -37,7 +35,7 @@ func insertGroup(group *Group) error {
 		return err
 	}
 	// Second try to insert group
-	_, err := mongo.InsertOne("Group", group)
+	_, err := mongo.InsertOne("Group", g)
 	if err != nil {
 		return err
 	}

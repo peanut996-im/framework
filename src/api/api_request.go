@@ -18,6 +18,7 @@ type GroupRequest struct {
 	UID       string `json:"uid,omitempty"`
 	GroupID   string `json:"groupID,omitempty"`
 	GroupName string `json:"groupName,omitempty"`
+	GroupAdmin string `json:"groupAdmin,omitempty"`
 }
 
 type LoadRequest struct {

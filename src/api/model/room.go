@@ -4,20 +4,20 @@ import (
 	"framework/db"
 	"framework/logger"
 	"framework/tool"
-	"time"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Room struct {
-	RoomID     string `json:"roomID" bson:"roomID"`
-	OneToOne   bool   `json:"oneToOne" bson:"oneToOne"`
-	Status     string `json:"status" bson:"status"`
-	CreateTime int64  `json:"createTime,omitempty" bson:"createTime"`
+	RoomID     string    `json:"roomID" bson:"roomID"`
+	OneToOne   bool      `json:"oneToOne" bson:"oneToOne"`
+	Status     string    `json:"status" bson:"status"`
+	CreateTime string `json:"createTime,omitempty" bson:"createTime"`
 }
 
 func newRoom() *Room {
 	return &Room{
 		RoomID:     tool.NewSnowFlakeID(),
-		CreateTime: time.Now().Unix(),
+		CreateTime: tool.GetNowUnixMilliSecond() ,
 		OneToOne:   false,
 	}
 }
@@ -43,4 +43,45 @@ func insertRoom(room *Room) error {
 	}
 	logger.Info("Mongo insert room success, id: %v", res.InsertedID)
 	return nil
+}
+
+func deleteRoom(roomID string) error {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{"roomID": roomID}
+	if _, err := mongo.DeleteOne("Room", filter); err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetRoomsByUID(uid string) ([]string,error){
+	mongo := db.GetLastMongoClient()
+	rooms := []string{}
+	// find from db group user
+	filter := bson.M{
+		"uid": uid,
+	}
+	var (
+		groupUsers []GroupUser
+		friends []Friend
+	)
+	err := mongo.Find("GroupUser",&groupUsers,filter)
+	if err != nil {
+		return nil,err
+	}
+	for _,groupUser := range groupUsers{
+		rooms = append(rooms,groupUser.GroupID)
+	}
+
+	filter = bson.M{
+		"$or": bson.A{bson.M{"userA": uid}, bson.M{"userB": uid}},
+	}
+	err = mongo.Find("Friend",&friends,filter)
+	if err != nil {
+		return nil,err
+	}
+	for _, friend := range friends {
+		rooms = append(rooms,friend.RoomID)
+	}
+	return tool.RemoveDuplicateString(rooms),nil
 }

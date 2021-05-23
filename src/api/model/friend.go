@@ -6,6 +6,7 @@
 package model
 
 import (
+	"errors"
 	"framework/db"
 	"framework/logger"
 	"framework/tool"
@@ -13,13 +14,16 @@ import (
 )
 
 type Friend struct {
-	FriendA string `json:"friendA" bson:"userA"`
-	FriendB string `json:"friendB" bson:"userB"`
-	RoomID  string `json:"roomID" bson:"roomID"`
+	FriendA    string `json:"friendA" bson:"userA"`
+	FriendB    string `json:"friendB" bson:"userB"`
+	RoomID     string `json:"roomID" bson:"roomID"`
+	CreateTime string `json:"-" bson:"createTime"`
 }
 
 func NewFriend() *Friend {
-	return &Friend{}
+	return &Friend{
+		CreateTime: tool.GetNowUnixMilliSecond(),
+	}
 }
 
 func insertFriend(friend *Friend) error {
@@ -41,6 +45,7 @@ func insertFriend(friend *Friend) error {
 	oppositeFriend := NewFriend()
 	oppositeFriend.FriendA = friend.FriendB
 	oppositeFriend.FriendB = friend.FriendA
+	oppositeFriend.RoomID = r.RoomID
 	if _, err = mongo.InsertOne("Friend", oppositeFriend); err != nil {
 		logger.Error("mongo insert oppositefriend err: %v", err)
 		return err
@@ -50,27 +55,37 @@ func insertFriend(friend *Friend) error {
 
 //AddNewFriend Add friends by UID
 func AddNewFriend(friendA, friendB string) error {
+	if _, err := FindFriend(friendA, friendB); nil == err {
+		// already exists or error
+		return errors.New("friend already exists or find error")
+	}
 	f := NewFriend()
 	f.FriendA = friendA
 	f.FriendB = friendB
+
 	if err := insertFriend(f); nil != err {
 		return err
 	}
 	return nil
 }
 
-func DeleteFriend(origin, target string) error {
+func DeleteFriend(friendA, friendB string) error {
 	mongo := db.GetLastMongoClient()
-	filter := bson.D{{
-		"userA",
-		bson.D{{
-			"$in",
-			bson.A{origin, target},
-		}},
-	}}
-	_, err := mongo.DeleteMany("Friend", filter)
+	// find room and delete
+	friend, err := FindFriend(friendA, friendB)
 	if err != nil {
-		return nil
+		return err
+	}
+	if err := deleteRoom(friend.RoomID); nil != err {
+		return err
+	}
+	filter := bson.M{"userA": friendA, "userB": friendB}
+	if _, err = mongo.DeleteMany("Friend", filter); err != nil {
+		return err
+	}
+	filter = bson.M{"userB": friendA, "userA": friendB}
+	if _, err = mongo.DeleteMany("Friend", filter); err != nil {
+		return err
 	}
 	return nil
 }
@@ -97,4 +112,18 @@ func GetAllFriends(user string) ([]string, error) {
 		friends = append(friends, friend.FriendA)
 	}
 	return tool.RemoveDuplicateString(friends), nil
+}
+
+func FindFriend(friendA, friendB string) (*Friend, error) {
+	mongo := db.GetLastMongoClient()
+	friend := &Friend{}
+	filter := bson.M{
+		"userA": friendA,
+		"userB": friendB,
+	}
+
+	if err := mongo.FindOne("Friend", friend, filter); err != nil {
+		return nil, err
+	}
+	return friend, nil
 }

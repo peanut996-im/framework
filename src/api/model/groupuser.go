@@ -8,21 +8,25 @@ package model
 import (
 	"framework/db"
 	"framework/logger"
+	"framework/tool"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type GroupUser struct {
-	GroupId string `json:"groupID" bson:"groupID"`
-	UID     string `json:"userID" bson:"uid"`
+	GroupID    string `json:"groupID" bson:"groupID"`
+	UID        string `json:"uid" bson:"uid"`
+	CreateTime string `json:"-" bson:"createTime"`
 }
 
 func NewGroupUser() *GroupUser {
-	return &GroupUser{}
+	return &GroupUser{
+		CreateTime: tool.GetNowUnixMilliSecond(),
+	}
 }
 
 func insertGroupUser(groupUser *GroupUser) error {
 	mongo := db.GetLastMongoClient()
-	res, err := mongo.InsertOne("Group", groupUser)
+	res, err := mongo.InsertOne("GroupUser", groupUser)
 	if err != nil {
 		logger.Error("mongo insert GroupUser err: %v", err)
 		return err
@@ -33,7 +37,7 @@ func insertGroupUser(groupUser *GroupUser) error {
 
 func CreateGroupUser(group, user string) error {
 	gp := NewGroupUser()
-	gp.GroupId = group
+	gp.GroupID = group
 	gp.UID = user
 	if err := insertGroupUser(gp); nil != err {
 		logger.Error("mongo insert GroupUser err: %v", err)

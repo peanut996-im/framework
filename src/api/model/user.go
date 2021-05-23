@@ -9,17 +9,19 @@ import (
 
 //User means a people who use the system.
 type User struct {
-	UID      string `json:"uid,omitempty" bson:"uid"`
-	Account  string `json:"account" bson:"account"`
-	Password string `json:"-" bson:"password"`
+	UID        string `json:"uid,omitempty" bson:"uid"`
+	Account    string `json:"account" bson:"account"`
+	Password   string `json:"-" bson:"password"`
+	CreateTime string `json:"-" bson:"createTime"`
 }
 
 //NewUser returns a User who UID generate by snowflake Algorithm
 func NewUser(account string, password string) *User {
 	return &User{
-		UID:      tool.NewSnowFlakeID(),
-		Account:  account,
-		Password: password,
+		UID:        tool.NewSnowFlakeID(),
+		Account:    account,
+		Password:   password,
+		CreateTime: tool.GetNowUnixMilliSecond(),
 	}
 }
 
