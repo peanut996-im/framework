@@ -36,7 +36,7 @@ func NewServer(cfg *cfgargs.SrvConfig) *Server {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	return &Server{
-		session: gin.Default(),
+		session: gin.New(),
 		routers: []*NodeRoute{},
 	}
 }
