@@ -57,3 +57,11 @@ func InsertUser(user *User) error {
 	logger.Info("Mongo insert user success, id: %v", res.InsertedID)
 	return nil
 }
+
+func GetUIDFromAccount(account string) (string, error) {
+	user, err := GetUserByAccount(account)
+	if nil != err {
+		return "", nil
+	}
+	return user.Account, nil
+}
