@@ -8,6 +8,8 @@ package tool
 import (
 	"encoding/json"
 	"github.com/bwmarrin/snowflake"
+	"strconv"
+	"time"
 )
 
 func RemoveDuplicateString(origin []string) []string {
@@ -33,4 +35,8 @@ func PrettyPrint(val interface{}) (string, error) {
 		return "", err
 	}
 	return string(s), nil
+}
+
+func GetNowUnixMilliSecond() string{
+	return strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
 }
