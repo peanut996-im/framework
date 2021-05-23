@@ -7,7 +7,6 @@ package model
 
 import (
 	"framework/db"
-	"framework/logger"
 	"framework/tool"
 	"time"
 )
@@ -35,16 +34,13 @@ func insertGroup(group *Group) error {
 	g.GroupID = r.RoomID
 	// First try to insert the room
 	if err := insertRoom(r); nil != err {
-		logger.Error("InsertGroupRoom err: %v", err)
 		return err
 	}
 	// Second try to insert group
-	res, err := mongo.InsertOne("Group", group)
+	_, err := mongo.InsertOne("Group", group)
 	if err != nil {
-		logger.Error("mongo insert Group err: %v", err)
 		return err
 	}
-	logger.Info("Mongo insert Group success, id: %v", res.InsertedID)
 	return nil
 }
 
@@ -53,7 +49,10 @@ func CreateGroup(name, admin string) error {
 	g.GroupAdmin = admin
 	g.GroupName = name
 	if err := insertGroup(g); nil != err {
-		logger.Error("mongo insert Group err: %v", err)
+		return err
+	}
+	// create admin
+	if err := CreateGroupUser(g.GroupID, admin); nil != err {
 		return err
 	}
 	return nil

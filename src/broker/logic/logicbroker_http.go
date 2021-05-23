@@ -18,13 +18,14 @@ type LogicBrokerHttp struct {
 }
 
 func (l *LogicBrokerHttp) Send(event string, data interface{}) (interface{}, error) {
+	logger.Info("logicBroker Event /%v Send.", event)
 	url := l.logicAddr + "/" + event
 	rawJson := ``
 	switch event {
 	case api.EventAuth:
 		rawJson = fmt.Sprintf(`{ "token": "%v"}`, data.(string))
 	case api.EventLoad:
-		rawJson = fmt.Sprintf(`{ "user_id": "%v"}`, data.(string))
+		rawJson = fmt.Sprintf(`{ "uid": "%v"}`, data.(string))
 	case api.EventAddFriend:
 	case api.EventDeleteFriend:
 	case api.EventCreateGroup:
@@ -36,12 +37,12 @@ func (l *LogicBrokerHttp) Send(event string, data interface{}) (interface{}, err
 	resp, body, errs := l.client.GetGoReq().Post(url).Send(rawJson).End()
 	if len(errs) != 0 {
 		for i, err := range errs {
-			logger.Info("logicBroker %v failed. errs[%v]: %v ", event, i, err)
+			logger.Info("logicBroker Event /%v failed. errs[%v]: %v ", event, i, err)
 		}
 		return nil, errs[0]
 	}
 	if resp.StatusCode != 200 {
-		return nil, errors.New(fmt.Sprintf("LogicBroker %v http failed code: %v", event, resp.StatusCode))
+		return nil, errors.New(fmt.Sprintf("LogicBroker Event /%v http failed code: %v", event, resp.StatusCode))
 	}
 	return json.RawMessage(body), nil
 }

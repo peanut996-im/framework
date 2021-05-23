@@ -11,17 +11,16 @@ import (
 	"framework/tool"
 
 	"framework/db"
-	"framework/logger"
 	"time"
 )
 
 const (
-	//UID_TO_TOKEN_FORMAT redis key name for value: token
-	UID_TO_TOKEN_FORMAT = "%v_to_token"
-	//TOKEN_TO_UID_FORMAT redis key name for value: uid
-	TOKEN_TO_UID_FORMAT = "%v_to_uid"
-	//DEFAULT_TOKEN_EXPIRE_TIME Token default expiration time
-	DEFAULT_TOKEN_EXPIRE_TIME = 6 * 60 * 60
+	//UidToTokenFormat redis key name for value: token
+	UidToTokenFormat = "%v_to_token"
+	//TokenToUidFormat redis key name for value: uid
+	TokenToUidFormat = "%v_to_uid"
+	//DefaultTokenExpireTime Token default expiration time
+	DefaultTokenExpireTime = 6 * 60 * 60
 )
 
 func CheckToken(token string) (*model.User, error) {
@@ -30,11 +29,9 @@ func CheckToken(token string) (*model.User, error) {
 	uid, err := rds.Get(TokenToUIDFormat(token))
 
 	if err != nil {
-		logger.Info("redis get uid from token err: %v", err)
 		return nil, err
 	}
 
-	logger.Debug("mongo filter uid: %v", uid)
 	return model.GetUserByUID(uid)
 }
 
@@ -50,22 +47,19 @@ func InsertToken(uid string) (string, error) {
 			token = GenerateToken(uid)
 		} else {
 			// redis 有问题
-			logger.Info("redis get token err", err)
 			return "", err
 		}
 	}
 
 	// redis uid => token
-	_, err = rds.Set(tokenKey, token, DEFAULT_TOKEN_EXPIRE_TIME)
+	_, err = rds.Set(tokenKey, token, DefaultTokenExpireTime)
 	if nil != err {
-		logger.Info("redis set uid => token err: %v", err)
 		return "", err
 	}
 	uidKey := TokenToUIDFormat(token)
 	// redis token => uid
-	_, err = rds.Set(uidKey, uid, DEFAULT_TOKEN_EXPIRE_TIME)
+	_, err = rds.Set(uidKey, uid, DefaultTokenExpireTime)
 	if nil != err {
-		logger.Info("redis set token => uid err: %v", err)
 		return "", err
 	}
 	return token, nil
@@ -90,9 +84,9 @@ func DeleteToken(token string) error {
 }
 
 func UIDToTokenFormat(uid string) string {
-	return fmt.Sprintf(UID_TO_TOKEN_FORMAT, uid)
+	return fmt.Sprintf(UidToTokenFormat, uid)
 }
 
 func TokenToUIDFormat(token string) string {
-	return fmt.Sprintf(TOKEN_TO_UID_FORMAT, token)
+	return fmt.Sprintf(TokenToUidFormat, token)
 }
