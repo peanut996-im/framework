@@ -3,6 +3,7 @@ package cfgargs
 import (
 	"flag"
 	"fmt"
+	"framework/tool"
 	"io/ioutil"
 	"strings"
 
@@ -20,13 +21,13 @@ var (
 //SrvConfig records for all conf
 type SrvConfig struct {
 	Build
-	Mongo    `yaml:"mongo"`
-	Redis    `yaml:"redis"`
-	Log      `yaml:"log"`
-	HTTP     `yaml:"http"`
-	SocketIO `yaml:"socket.io"`
-	Logic    `yaml:"logic"`
-	AppKey   string `yaml:"appkey"`
+	Mongo    `yaml:"mongo" json:"Mongo,omitempty"`
+	Redis    `yaml:"redis" json:"Redis,omitempty"`
+	Log      `yaml:"log" json:"Log,omitempty"`
+	HTTP     `yaml:"http" json:"HTTP,omitempty"`
+	SocketIO `yaml:"socket.io" json:"SocketIO,omitempty"`
+	Logic    `yaml:"logic" json:"Logic,omitempty"`
+	AppKey   string `yaml:"appkey" json:"AppKey"`
 }
 
 type Build struct {
@@ -152,13 +153,19 @@ func GetLastSrvConfig() *SrvConfig {
 
 func (s *SrvConfig) Print() {
 	fmt.Println("BuildInfo:")
-	fmt.Printf("BuildTime: %v\n", s.BuildTime)
-	fmt.Printf("BuildUser: %v\n", s.BuildUser)
-	fmt.Printf("BuildVersion: %v\n", s.BuildVersion)
-	fmt.Printf("BuildMachine: %v\n", s.BuildMachine)
-	fmt.Printf("Log: %+v\n", s.Log)
-	fmt.Printf("HTTP: %+v\n", s.HTTP)
-	fmt.Printf("Mongo: %+v\n", s.Mongo)
-	fmt.Printf("Redis: %+v\n", s.Redis)
-	fmt.Println("")
+	json, err := tool.PrettyPrint(s)
+	if err == nil {
+		fmt.Println(json + "\n")
+	} else {
+		fmt.Printf("BuildTime: %v\n", s.BuildTime)
+		fmt.Printf("BuildUser: %v\n", s.BuildUser)
+		fmt.Printf("BuildVersion: %v\n", s.BuildVersion)
+		fmt.Printf("BuildMachine: %v\n", s.BuildMachine)
+		fmt.Printf("Log: %+v\n", s.Log)
+		fmt.Printf("HTTP: %+v\n", s.HTTP)
+		fmt.Printf("Mongo: %+v\n", s.Mongo)
+		fmt.Printf("Redis: %+v\n", s.Redis)
+		fmt.Println("")
+	}
+
 }

@@ -5,7 +5,10 @@
 // @Update  peanut996  2021/5/22 22:30
 package tool
 
-import "github.com/bwmarrin/snowflake"
+import (
+	"encoding/json"
+	"github.com/bwmarrin/snowflake"
+)
 
 func RemoveDuplicateString(origin []string) []string {
 	result := make([]string, 0, len(origin))
@@ -22,4 +25,12 @@ func RemoveDuplicateString(origin []string) []string {
 func NewSnowFlakeID() string {
 	node, _ := snowflake.NewNode(1)
 	return node.Generate().String()
+}
+
+func PrettyPrint(val interface{}) (string, error) {
+	s, err := json.MarshalIndent(val, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	return string(s), nil
 }
