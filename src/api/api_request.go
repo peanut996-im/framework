@@ -10,8 +10,8 @@ type FriendRequest struct {
 	FriendB string `json:"friendB"`
 }
 
-type JoinGroupRequest struct {
-}
-
-type CreateGroupRequest struct {
+type GroupRequest struct {
+	UID       string `json:"uid,omitempty"`
+	GroupID   string `json:"groupID,omitempty"`
+	GroupName string `json:"groupName,omitempty"`
 }
