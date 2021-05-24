@@ -20,6 +20,7 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 		if err != nil {
 			logger.Error("get raw data err: %v", err)
 			c.AbortWithStatusJSON(http.StatusOK, api.NewHttpInnerErrorResponse(err))
+			return
 		}
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(b))
 
@@ -39,6 +40,7 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 					}
 				}
 				c.AbortWithStatusJSON(http.StatusOK, api.SignInvaildResp)
+				return
 			}
 		} else {
 			// json
@@ -54,6 +56,7 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 					}
 				}
 				c.AbortWithStatusJSON(http.StatusOK, api.SignInvaildResp)
+				return
 			}
 		}
 		c.Next()
@@ -62,4 +65,15 @@ func CheckSign(cfg *cfgargs.SrvConfig) gin.HandlerFunc {
 
 func CORS() gin.HandlerFunc {
 	return cors.Default()
+}
+
+func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+		if !whitelist[ip] {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		c.Next()
+	}
 }
