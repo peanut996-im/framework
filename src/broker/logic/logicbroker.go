@@ -7,9 +7,9 @@ import (
 var logicBroker LogicBroker
 
 type LogicBroker interface {
-	Init(cfg *cfgargs.SrvConfig)
-	Send(event string, data interface{}) (interface{}, error)
-	Listen()
+	Init(*cfgargs.SrvConfig)
+	Send(string, interface{}) (interface{}, error)
+	Listen(interface{})
 	Register()
 }
 

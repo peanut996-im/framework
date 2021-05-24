@@ -8,6 +8,7 @@ import (
 	"framework/cfgargs"
 	"framework/logger"
 	"framework/net/http"
+	"github.com/gin-gonic/gin"
 )
 
 type LogicBrokerHttp struct {
@@ -18,7 +19,7 @@ type LogicBrokerHttp struct {
 }
 
 func (l *LogicBrokerHttp) Send(event string, data interface{}) (interface{}, error) {
-	logger.Info("logicBroker Event /%v Send.", event)
+	//logger.Info("logicBroker Event /%v Send.", event)
 	url := l.logicAddr + "/" + event
 	rawJson := ``
 	switch event {
@@ -28,8 +29,8 @@ func (l *LogicBrokerHttp) Send(event string, data interface{}) (interface{}, err
 		rawJson = fmt.Sprintf(`{ "uid": "%v"}`, data.(string))
 	default:
 		bytes, err := json.Marshal(data)
-		if err != nil{
-			return nil,errors.New(fmt.Sprintf(api.UnmarshalJsonError,err))
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf(api.UnmarshalJsonError, err))
 		}
 		rawJson = string(bytes)
 	}
@@ -46,8 +47,12 @@ func (l *LogicBrokerHttp) Send(event string, data interface{}) (interface{}, err
 	return json.RawMessage(body), nil
 }
 
-func (l *LogicBrokerHttp) Listen() {
-
+func (l *LogicBrokerHttp) Listen(handler interface{}) {
+	node := http.NewNodeRoute("",
+		http.NewRoute(api.HTTPMethodPost, api.EventChat, handler.(func(*gin.Context))),
+	)
+	l.srv.AddNodeRoute(node)
+	l.srv.Run()
 }
 
 func (l *LogicBrokerHttp) Register() {
@@ -57,8 +62,10 @@ func (l *LogicBrokerHttp) Register() {
 func NewLogicBrokerHttp() *LogicBrokerHttp {
 	return &LogicBrokerHttp{}
 }
+
 func (l *LogicBrokerHttp) Init(cfg *cfgargs.SrvConfig) {
-	l.srv = http.NewServer(cfg)
+	l.srv = http.NewServer()
+	l.srv.Init(cfg)
 	l.client = http.NewClient()
 	if cfg.Logic.Mode != "http" {
 		logger.Warn("can't load logic configuration for http")
@@ -90,7 +97,6 @@ func (l *LogicBrokerHttp) Auth(token string) (interface{}, error) {
 }
 
 func (l *LogicBrokerHttp) GetUserInfo() {
-
 }
 
 func (l *LogicBrokerHttp) LoadInitData(uid string) (interface{}, error) {
@@ -108,6 +114,7 @@ func (l *LogicBrokerHttp) LoadInitData(uid string) (interface{}, error) {
 	// forwards to user need raw json
 	return json.RawMessage(body), nil
 }
+
 func (l *LogicBrokerHttp) AddFriend(addFriendRequest interface{}) (interface{}, error) {
 	url := l.logicAddr + "/addFriend"
 	data, err := json.Marshal(addFriendRequest)
