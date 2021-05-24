@@ -13,6 +13,7 @@ const (
 	EventJoinGroup    = "joinGroup"
 	EventLeaveGroup   = "leaveGroup"
 	EventChat         = "chat"
+	EventGetUserInfo  = "getUserInfo"
 )
 
 const (
@@ -78,15 +79,13 @@ var (
 	}
 )
 
-func ErrorCodeToFormat(code int) string{
+func ErrorCodeToFormat(code int) string {
 	return respCodeErrorFormat[code]
 }
 
 //func ErrorCodeToError(code int,err error) string{
 //	return fmt.Sprintf(respCodeErrorFormat[code],err)
 //}
-
-
 
 func ErrorCodeToString(code int) string {
 	return respCodeErrorString[code]
