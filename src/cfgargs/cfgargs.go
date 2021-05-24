@@ -27,6 +27,7 @@ type SrvConfig struct {
 	HTTP     `yaml:"http" json:"HTTP,omitempty"`
 	SocketIO `yaml:"socket.io" json:"SocketIO,omitempty"`
 	Logic    `yaml:"logic" json:"Logic,omitempty"`
+	Gate     `yaml:"gate" json:"Gate,omitempty"`
 	AppKey   string `yaml:"appkey" json:"AppKey"`
 }
 
@@ -72,6 +73,11 @@ type Redis struct {
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
 	Panic    bool   `yaml:"panic"`
+}
+
+type Gate struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 //Logic configure for Redis
