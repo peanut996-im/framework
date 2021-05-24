@@ -26,15 +26,13 @@ type NodeRoute struct {
 
 //Server ...
 type Server struct {
+	cfg    *cfgargs.SrvConfig
 	session *gin.Engine
 	routers []*NodeRoute
 }
 
 // NewServer ...
-func NewServer(cfg *cfgargs.SrvConfig) *Server {
-	if cfg.HTTP.Release {
-		gin.SetMode(gin.ReleaseMode)
-	}
+func NewServer() *Server {
 	return &Server{
 		session: gin.Default(),
 		routers: []*NodeRoute{},
@@ -58,17 +56,24 @@ func NewNodeRoute(path string, routers ...*Route) *NodeRoute {
 func (s *Server) AddNodeRoute(nodes ...*NodeRoute) {
 	s.routers = append(s.routers, nodes...)
 }
-
-//Serve ...
-func (s *Server) Serve(cfg *cfgargs.SrvConfig) error {
+func (s *Server) Init(cfg *cfgargs.SrvConfig) {
+	if cfg.HTTP.Release {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	if cfg.HTTP.Cors {
 		s.session.Use(CORS())
 	}
 	if cfg.HTTP.Sign {
 		s.session.Use(CheckSign(cfg))
 	}
+	s.cfg = cfg
+
+}
+
+//Run ...
+func (s *Server) Run() error {
 	s.mountRoutes()
-	err := s.session.Run(fmt.Sprintf(":%v", cfg.HTTP.Port))
+	err := s.session.Run(fmt.Sprintf(":%v", s.cfg.HTTP.Port))
 	if err != nil {
 		return err
 	}
