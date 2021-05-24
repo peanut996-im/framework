@@ -32,6 +32,9 @@ func CheckToken(token string) (*model.User, error) {
 		return nil, err
 	}
 
+	// 重置时间
+	go ResetTokenTime(token,uid)
+
 	return model.GetUserByUID(uid)
 }
 
@@ -51,17 +54,9 @@ func InsertToken(uid string) (string, error) {
 		}
 	}
 
+	// 已存在 重置
 	// redis uid => token
-	_, err = rds.Set(tokenKey, token, DefaultTokenExpireTime)
-	if nil != err {
-		return "", err
-	}
-	uidKey := TokenToUIDFormat(token)
-	// redis token => uid
-	_, err = rds.Set(uidKey, uid, DefaultTokenExpireTime)
-	if nil != err {
-		return "", err
-	}
+	go ResetTokenTime(token,uid)
 	return token, nil
 }
 
@@ -79,6 +74,22 @@ func DeleteToken(token string) error {
 
 	if nil != err {
 		return err
+	}
+	return nil
+}
+
+func ResetTokenTime(token,uid string) error {
+	rds := db.GetLastRedisClient()
+	tokenKey := UIDToTokenFormat(uid)
+	uidKey := TokenToUIDFormat(token)
+	_, err := rds.Set(tokenKey, token, DefaultTokenExpireTime)
+	if nil != err {
+		return  err
+	}
+	// redis token => uid
+	_, err = rds.Set(uidKey, uid, DefaultTokenExpireTime)
+	if nil != err {
+		return  err
 	}
 	return nil
 }
