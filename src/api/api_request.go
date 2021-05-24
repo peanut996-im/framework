@@ -5,14 +5,23 @@
 // @Update  peanut996  2021/5/22 21:57
 package api
 
+import "framework/api/model"
+
+type PushChatRequest struct {
+	Message *model.ChatMessage `json:"message"`
+	Target  string           `json:"target"`
+}
 type ChatRequest struct {
 	//From sender user id
-	From    string      `json:"from" bson:"from"`
-	To      string      `json:"to,omitempty" bson:"to"`
-	RoomID  string      `json:"roomID" bson:"roomID"`
-	Time    int64       `json:"time,omitempty" bson:"time"`
-	Type    string      `json:"type" bson:"type"`
-	Content interface{} `json:"content" bson:"content"`
+	From    string      `json:"from"`
+	To      string      `json:"to,omitempty"`
+	Time    int64       `json:"time,omitempty"`
+	Type    string      `json:"type"`
+	Content interface{} `json:"content"`
+}
+
+type UserRequest struct {
+	UID string `json:"uid"`
 }
 
 type AuthRequest struct {
