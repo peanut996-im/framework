@@ -26,7 +26,7 @@ func NewGroupUser() *GroupUser {
 
 func insertGroupUser(groupUser *GroupUser) error {
 	mongo := db.GetLastMongoClient()
-	res, err := mongo.InsertOne("GroupUser", groupUser)
+	res, err := mongo.InsertOne(MongoCollectionGroupUser, groupUser)
 	if err != nil {
 		logger.Error("mongo insert GroupUser err: %v", err)
 		return err
@@ -49,7 +49,7 @@ func CreateGroupUser(group, user string) error {
 func DeleteGroupUser(group, user string) error {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{"groupID": group, "uid": user}
-	if _, err := mongo.DeleteOne("GroupUser", filter); nil != err {
+	if _, err := mongo.DeleteOne(MongoCollectionGroupUser, filter); nil != err {
 		return err
 	}
 	return nil

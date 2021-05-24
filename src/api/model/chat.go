@@ -30,7 +30,7 @@ func ChatMessageFrom(from, to, content, Type string) *ChatMessage {
 
 func InsertChatMessage(c *ChatMessage) error {
 	mongo := db.GetLastMongoClient()
-	if _, err := mongo.InsertOne("Chat", c); err != nil {
+	if _, err := mongo.InsertOne(MongoCollectionChatMessage, c); err != nil {
 		return err
 	}
 	return nil

@@ -35,7 +35,7 @@ func insertGroup(g *Group) error {
 		return err
 	}
 	// Second try to insert group
-	_, err := mongo.InsertOne("Group", g)
+	_, err := mongo.InsertOne(MongoCollectionGroup, g)
 	if err != nil {
 		return err
 	}

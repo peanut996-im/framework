@@ -8,16 +8,16 @@ import (
 )
 
 type Room struct {
-	RoomID     string    `json:"roomID" bson:"roomID"`
-	OneToOne   bool      `json:"oneToOne" bson:"oneToOne"`
-	Status     string    `json:"status" bson:"status"`
+	RoomID     string `json:"roomID" bson:"roomID"`
+	OneToOne   bool   `json:"oneToOne" bson:"oneToOne"`
+	Status     string `json:"status" bson:"status"`
 	CreateTime string `json:"createTime,omitempty" bson:"createTime"`
 }
 
 func newRoom() *Room {
 	return &Room{
 		RoomID:     tool.NewSnowFlakeID(),
-		CreateTime: tool.GetNowUnixMilliSecond() ,
+		CreateTime: tool.GetNowUnixMilliSecond(),
 		OneToOne:   false,
 	}
 }
@@ -36,7 +36,7 @@ func NewFriendRoom() *Room {
 
 func insertRoom(room *Room) error {
 	mongo := db.GetLastMongoClient()
-	res, err := mongo.InsertOne("Room", room)
+	res, err := mongo.InsertOne(MongoCollectionRoom, room)
 	if err != nil {
 		logger.Error("mongo insert room err: %v", err)
 		return err
@@ -48,13 +48,13 @@ func insertRoom(room *Room) error {
 func deleteRoom(roomID string) error {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{"roomID": roomID}
-	if _, err := mongo.DeleteOne("Room", filter); err != nil {
+	if _, err := mongo.DeleteOne(MongoCollectionRoom, filter); err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetRoomsByUID(uid string) ([]string,error){
+func GetRoomsByUID(uid string) ([]string, error) {
 	mongo := db.GetLastMongoClient()
 	rooms := []string{}
 	// find from db group user
@@ -63,25 +63,25 @@ func GetRoomsByUID(uid string) ([]string,error){
 	}
 	var (
 		groupUsers []GroupUser
-		friends []Friend
+		friends    []Friend
 	)
-	err := mongo.Find("GroupUser",&groupUsers,filter)
+	err := mongo.Find(MongoCollectionGroupUser, &groupUsers, filter)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	for _,groupUser := range groupUsers{
-		rooms = append(rooms,groupUser.GroupID)
+	for _, groupUser := range groupUsers {
+		rooms = append(rooms, groupUser.GroupID)
 	}
 
 	filter = bson.M{
 		"$or": bson.A{bson.M{"userA": uid}, bson.M{"userB": uid}},
 	}
-	err = mongo.Find("Friend",&friends,filter)
+	err = mongo.Find(MongoCollectionFriend, &friends, filter)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	for _, friend := range friends {
-		rooms = append(rooms,friend.RoomID)
+		rooms = append(rooms, friend.RoomID)
 	}
-	return tool.RemoveDuplicateString(rooms),nil
+	return tool.RemoveDuplicateString(rooms), nil
 }

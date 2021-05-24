@@ -29,7 +29,7 @@ func GetUserByAccount(account string) (*User, error) {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{"account": account}
 	user := &User{}
-	err := mongo.FindOne("User", user, filter)
+	err := mongo.FindOne(MongoCollectionUser, user, filter)
 	if err != nil {
 		logger.Info("mongo get user from account err: %v, uid: %v", err, account)
 		return nil, err
@@ -41,7 +41,7 @@ func GetUserByUID(uid string) (*User, error) {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{"uid": uid}
 	user := &User{}
-	err := mongo.FindOne("User", user, filter)
+	err := mongo.FindOne(MongoCollectionUser, user, filter)
 	if err != nil {
 		logger.Info("mongo get user from uid err: %v, uid: %v", err, uid)
 		return nil, err
@@ -51,7 +51,7 @@ func GetUserByUID(uid string) (*User, error) {
 
 func InsertUser(user *User) error {
 	mongo := db.GetLastMongoClient()
-	res, err := mongo.InsertOne("User", user)
+	res, err := mongo.InsertOne(MongoCollectionUser, user)
 	if err != nil {
 		logger.Error("mongo insert user err: %v", err)
 		return err

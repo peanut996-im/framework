@@ -37,7 +37,7 @@ func insertFriend(friend *Friend) error {
 		return err
 	}
 	// Second try to insert the friend relationship
-	if _, err := mongo.InsertOne("Friend", friend); err != nil {
+	if _, err := mongo.InsertOne(MongoCollectionFriend, friend); err != nil {
 		logger.Error("mongo insert friend err: %v", err)
 		return err
 	}
@@ -46,7 +46,7 @@ func insertFriend(friend *Friend) error {
 	oppositeFriend.FriendA = friend.FriendB
 	oppositeFriend.FriendB = friend.FriendA
 	oppositeFriend.RoomID = r.RoomID
-	if _, err = mongo.InsertOne("Friend", oppositeFriend); err != nil {
+	if _, err = mongo.InsertOne(MongoCollectionFriend, oppositeFriend); err != nil {
 		logger.Error("mongo insert oppositefriend err: %v", err)
 		return err
 	}
@@ -80,11 +80,11 @@ func DeleteFriend(friendA, friendB string) error {
 		return err
 	}
 	filter := bson.M{"userA": friendA, "userB": friendB}
-	if _, err = mongo.DeleteMany("Friend", filter); err != nil {
+	if _, err = mongo.DeleteMany(MongoCollectionFriend, filter); err != nil {
 		return err
 	}
 	filter = bson.M{"userB": friendA, "userA": friendB}
-	if _, err = mongo.DeleteMany("Friend", filter); err != nil {
+	if _, err = mongo.DeleteMany(MongoCollectionFriend, filter); err != nil {
 		return err
 	}
 	return nil
@@ -95,7 +95,7 @@ func GetAllFriends(user string) ([]string, error) {
 	friends := make([]string, 0)
 	filterA := bson.M{"userA": user}
 	friendsA := []Friend{}
-	if err := mongo.Find("Friend", &friendsA, filterA); nil != err {
+	if err := mongo.Find(MongoCollectionFriend, &friendsA, filterA); nil != err {
 		logger.Debug("Find friendB err: %v", err)
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func GetAllFriends(user string) ([]string, error) {
 	}
 	filterB := bson.M{"userB": user}
 	friendsB := []Friend{}
-	if err := mongo.Find("Friend", &friendsB, filterB); nil != err {
+	if err := mongo.Find(MongoCollectionFriend, &friendsB, filterB); nil != err {
 		logger.Debug("Find friendA err: %v", err)
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func FindFriend(friendA, friendB string) (*Friend, error) {
 		"userB": friendB,
 	}
 
-	if err := mongo.FindOne("Friend", friend, filter); err != nil {
+	if err := mongo.FindOne(MongoCollectionFriend, friend, filter); err != nil {
 		return nil, err
 	}
 	return friend, nil
