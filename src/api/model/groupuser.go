@@ -35,9 +35,9 @@ func insertGroupUser(groupUser *GroupUser) error {
 	return nil
 }
 
-func CreateGroupUser(group, user string) error {
+func CreateGroupUser(groupID, user string) error {
 	gp := NewGroupUser()
-	gp.GroupID = group
+	gp.GroupID = groupID
 	gp.UID = user
 	if err := insertGroupUser(gp); nil != err {
 		logger.Error("mongo insert GroupUser err: %v", err)
@@ -46,11 +46,26 @@ func CreateGroupUser(group, user string) error {
 	return nil
 }
 
-func DeleteGroupUser(group, user string) error {
+func DeleteGroupUser(groupID, user string) error {
 	mongo := db.GetLastMongoClient()
-	filter := bson.M{"groupID": group, "uid": user}
+	filter := bson.M{"groupID": groupID, "uid": user}
 	if _, err := mongo.DeleteOne(MongoCollectionGroupUser, filter); nil != err {
 		return err
 	}
 	return nil
+}
+
+func GetUsersByGroupID(groupID string)([]string,error){
+	// TODO Something need to do.
+	mongo := db.GetLastMongoClient()
+	filter:=bson.M{"groupID": groupID}
+	gUsers:= make([]GroupUser,0)
+	userIDs := make([]string,0)
+	if err := mongo.Find(MongoCollectionGroupUser,&gUsers,filter); nil != err {
+		return nil,err
+	}
+	for _, user := range gUsers {
+		userIDs = append(userIDs,user.UID)
+	}
+	return userIDs,nil
 }

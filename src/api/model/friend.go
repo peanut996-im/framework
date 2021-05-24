@@ -55,7 +55,7 @@ func insertFriend(friend *Friend) error {
 
 //AddNewFriend Add friends by UID
 func AddNewFriend(friendA, friendB string) error {
-	if _, err := FindFriend(friendA, friendB); nil == err {
+	if _, err := GetFriend(friendA, friendB); nil == err {
 		// already exists or error
 		return errors.New("friend already exists or find error")
 	}
@@ -72,7 +72,7 @@ func AddNewFriend(friendA, friendB string) error {
 func DeleteFriend(friendA, friendB string) error {
 	mongo := db.GetLastMongoClient()
 	// find room and delete
-	friend, err := FindFriend(friendA, friendB)
+	friend, err := GetFriend(friendA, friendB)
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func GetAllFriends(user string) ([]string, error) {
 	return tool.RemoveDuplicateString(friends), nil
 }
 
-func FindFriend(friendA, friendB string) (*Friend, error) {
+func GetFriend(friendA, friendB string) (*Friend, error) {
 	mongo := db.GetLastMongoClient()
 	friend := &Friend{}
 	filter := bson.M{
@@ -126,4 +126,20 @@ func FindFriend(friendA, friendB string) (*Friend, error) {
 		return nil, err
 	}
 	return friend, nil
+}
+
+func GetFriendsByRoomID(roomID string)([]string,error){
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{
+		"roomID": roomID,
+	}
+	friends := []Friend{}
+	if err := mongo.Find(MongoCollectionFriend,&friends,filter); nil != err {
+		return nil,err
+	}
+	friendIDs := []string{}
+	for _, friend := range friends {
+		friendIDs = append(friendIDs,friend.FriendA)
+	}
+	return friendIDs,nil
 }
