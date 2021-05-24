@@ -37,6 +37,9 @@ func PrettyPrint(val interface{}) (string, error) {
 	return string(s), nil
 }
 
-func GetNowUnixMilliSecond() string{
+func GetNowUnixMilliSecond() string {
 	return strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
+}
+func GetNowUnixNanoSecond() string {
+	return strconv.FormatInt(time.Now().UnixNano(), 10)
 }

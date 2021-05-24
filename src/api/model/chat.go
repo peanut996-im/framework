@@ -1,16 +1,37 @@
 package model
 
+import (
+	"framework/db"
+	"framework/tool"
+)
+
 type ChatMessage struct {
-	//From sender user id
-	From string `json:"from" bson:"from"`
-	//MessageID message id generate by server(logic)
-	MessageID string `json:"messageID,omitempty" bson:"messageID"`
-	//To receiver id (friend)
-	To string `json:"to,omitempty" bson:"to"`
-	//RoomID room id
-	RoomID string `json:"roomID" bson:"roomID"`
-	//Time unix time
-	Time int64 `json:"time,omitempty" bson:"time"`
-	//Type message type
-	Type string `json:"type" bson:"type"`
+	From    string `json:"from" bson:"from"`
+	To      string `json:"to,omitempty" bson:"to"`
+	Content string `json:"content" bson:"content"`
+	Time    string `json:"time,omitempty" bson:"time"`
+	Type    string `json:"type" bson:"type"`
+}
+
+func NewChatMessage() *ChatMessage {
+	return &ChatMessage{
+		Time: tool.GetNowUnixNanoSecond(),
+	}
+}
+
+func ChatMessageFrom(from, to, content, Type string) *ChatMessage {
+	c := NewChatMessage()
+	c.From = from
+	c.To = to
+	c.Content = content
+	c.Type = Type
+	return c
+}
+
+func InsertChatMessage(c *ChatMessage) error {
+	mongo := db.GetLastMongoClient()
+	if _, err := mongo.InsertOne("Chat", c); err != nil {
+		return err
+	}
+	return nil
 }
