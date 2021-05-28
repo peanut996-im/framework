@@ -8,6 +8,7 @@ package model
 import (
 	"framework/db"
 	"framework/tool"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Group struct {
@@ -54,4 +55,30 @@ func CreateGroup(name, admin string) error {
 		return err
 	}
 	return nil
+}
+
+func GetGroupsByUID(uid string) ([]*Group, error) {
+	groupIDs, err := GetGroupIDsByUID(uid)
+	if err != nil {
+		return nil, err
+	}
+	groups := make([]*Group, 0)
+	for _, groupID := range groupIDs {
+		group, err := GetGroupByGroupID(groupID)
+		if err != nil {
+			return nil, err
+		}
+		groups = append(groups, group)
+	}
+	return groups, nil
+}
+
+func GetGroupByGroupID(groupID string) (*Group, error) {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{"groupID": groupID}
+	group := &Group{}
+	if err := mongo.FindOne(MongoCollectionGroup, group, filter); nil != err {
+		return nil, err
+	}
+	return group, nil
 }

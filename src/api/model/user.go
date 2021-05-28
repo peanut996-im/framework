@@ -12,6 +12,7 @@ type User struct {
 	UID        string `json:"uid,omitempty" bson:"uid"`
 	Account    string `json:"account" bson:"account"`
 	Password   string `json:"-" bson:"password"`
+	Avatar     string `json:"avatar,omitempty" bson:"avatar"`
 	CreateTime string `json:"-" bson:"createTime"`
 }
 
@@ -22,6 +23,7 @@ func NewUser(account string, password string) *User {
 		Account:    account,
 		Password:   password,
 		CreateTime: tool.GetNowUnixMilliSecond(),
+		Avatar:     "",
 	}
 }
 
@@ -31,7 +33,7 @@ func GetUserByAccount(account string) (*User, error) {
 	user := &User{}
 	err := mongo.FindOne(MongoCollectionUser, user, filter)
 	if err != nil {
-		logger.Info("mongo get user from account err: %v, uid: %v", err, account)
+		logger.Info("mongo get User from account err: %v, uid: %v", err, account)
 		return nil, err
 	}
 	return user, nil
@@ -43,20 +45,44 @@ func GetUserByUID(uid string) (*User, error) {
 	user := &User{}
 	err := mongo.FindOne(MongoCollectionUser, user, filter)
 	if err != nil {
-		logger.Info("mongo get user from uid err: %v, uid: %v", err, uid)
+		logger.Info("mongo get User from uid err: %v, uid: %v", err, uid)
 		return nil, err
 	}
 	return user, nil
+}
+
+func GetUsersFromUIDs(uids ...string) ([]*User, error) {
+	users := make([]*User, 0)
+	for _, uid := range uids {
+		user, err := GetUserByUID(uid)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+func GetUsersByGroups(groups ...*Group) ([]*User, error) {
+	uids, err := GetUserIDsByGroups(groups...)
+	if nil != err {
+		return nil, err
+	}
+	users, err := GetUsersFromUIDs(uids...)
+	if nil != err {
+		return nil, err
+	}
+	return users, nil
 }
 
 func InsertUser(user *User) error {
 	mongo := db.GetLastMongoClient()
 	res, err := mongo.InsertOne(MongoCollectionUser, user)
 	if err != nil {
-		logger.Error("mongo insert user err: %v", err)
+		logger.Error("mongo insert User err: %v", err)
 		return err
 	}
-	logger.Info("Mongo insert user success, id: %v", res.InsertedID)
+	logger.Info("Mongo insert User success, id: %v", res.InsertedID)
 	return nil
 }
 

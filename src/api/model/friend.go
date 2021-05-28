@@ -19,6 +19,17 @@ type Friend struct {
 	RoomID     string `json:"roomID" bson:"roomID"`
 	CreateTime string `json:"-" bson:"createTime"`
 }
+type FriendWithRoomID struct {
+	User   `json:",inline"`
+	RoomID string `json:"roomID"`
+}
+
+func NewFriendWithRoomID(user *User, roomID string) *FriendWithRoomID {
+	return &FriendWithRoomID{
+		*user,
+		roomID,
+	}
+}
 
 func NewFriend() *Friend {
 	return &Friend{
@@ -90,7 +101,7 @@ func DeleteFriend(friendA, friendB string) error {
 	return nil
 }
 
-func GetAllFriends(user string) ([]string, error) {
+func GetFriendUIDsByUID(user string) ([]string, error) {
 	mongo := db.GetLastMongoClient()
 	friends := make([]string, 0)
 	filterA := bson.M{"userA": user}
@@ -113,6 +124,16 @@ func GetAllFriends(user string) ([]string, error) {
 	}
 	return tool.RemoveDuplicateString(friends), nil
 }
+func GetFriendsByUID(uid string) ([]*Friend, error) {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{"userA": uid}
+	var friends []*Friend
+	if err := mongo.Find(MongoCollectionFriend, &friends, filter); nil != err {
+		logger.Debug("Find friendB err: %v", err)
+		return nil, err
+	}
+	return friends, nil
+}
 
 func GetFriend(friendA, friendB string) (*Friend, error) {
 	mongo := db.GetLastMongoClient()
@@ -128,18 +149,38 @@ func GetFriend(friendA, friendB string) (*Friend, error) {
 	return friend, nil
 }
 
-func GetFriendsByRoomID(roomID string)([]string,error){
+func GetFriendsByRoomID(roomID string) ([]string, error) {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{
 		"roomID": roomID,
 	}
 	friends := []Friend{}
-	if err := mongo.Find(MongoCollectionFriend,&friends,filter); nil != err {
-		return nil,err
+	if err := mongo.Find(MongoCollectionFriend, &friends, filter); nil != err {
+		return nil, err
 	}
 	friendIDs := []string{}
 	for _, friend := range friends {
-		friendIDs = append(friendIDs,friend.FriendA)
+		friendIDs = append(friendIDs, friend.FriendA)
 	}
-	return friendIDs,nil
+	return friendIDs, nil
+}
+
+func GetFriendWithRoomIDsByUID(uid string) ([]*FriendWithRoomID, error) {
+	friendWithRoomIDs := make([]*FriendWithRoomID, 0)
+	friends, err := GetFriendsByUID(uid)
+	if nil != err {
+		return nil, err
+	}
+	for _, friend := range friends {
+		fR := &FriendWithRoomID{
+			RoomID: friend.RoomID,
+		}
+		user, err := GetUserByUID(friend.FriendB)
+		if err != nil {
+			return nil, err
+		}
+		fR.User = *user
+		friendWithRoomIDs = append(friendWithRoomIDs, fR)
+	}
+	return friendWithRoomIDs, nil
 }

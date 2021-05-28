@@ -54,11 +54,11 @@ func deleteRoom(roomID string) error {
 	return nil
 }
 
-//GetRoomsByUID Get user-related rooms
-func GetRoomsByUID(uid string) ([]string, error) {
+//GetRoomIDsByUID Get User-related rooms
+func GetRoomIDsByUID(uid string) ([]string, error) {
 	mongo := db.GetLastMongoClient()
 	rooms := []string{}
-	// find from db group user
+	// find from db group User
 	filter := bson.M{
 		"uid": uid,
 	}
@@ -87,14 +87,30 @@ func GetRoomsByUID(uid string) ([]string, error) {
 	return tool.RemoveDuplicateString(rooms), nil
 }
 
-func GetRoomByID(roomID string)(*Room,error){
+func GetRoomsByUID(uid string) ([]*Room, error) {
+	rooms := make([]*Room, 0)
+	roomIDs, err := GetRoomIDsByUID(uid)
+	if nil != err {
+		return nil, err
+	}
+	for _, roomID := range roomIDs {
+		room, err := GetRoomByID(roomID)
+		if nil != err {
+			return nil, err
+		}
+		rooms = append(rooms, room)
+	}
+	return rooms, nil
+}
+
+func GetRoomByID(roomID string) (*Room, error) {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{
 		"roomID": roomID,
 	}
 	room := &Room{}
 	if err := mongo.FindOne(MongoCollectionRoom, room, filter); nil != err {
-		return nil,err
+		return nil, err
 	}
-	return room,nil
+	return room, nil
 }
