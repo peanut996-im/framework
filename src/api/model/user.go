@@ -1,10 +1,17 @@
 package model
 
 import (
+	"fmt"
 	"framework/db"
 	"framework/logger"
 	"framework/tool"
 	"go.mongodb.org/mongo-driver/bson"
+	"math/rand"
+	"time"
+)
+
+const (
+	BaseAvatarFormat = "https://oss.peanut996.cn/img/avatar%v.png"
 )
 
 //User means a people who use the system.
@@ -18,12 +25,14 @@ type User struct {
 
 //NewUser returns a User who UID generate by snowflake Algorithm
 func NewUser(account string, password string) *User {
+	rand.Seed(time.Now().UnixNano())
+	random := rand.Intn(19) + 1
 	return &User{
 		UID:        tool.NewSnowFlakeID(),
 		Account:    account,
 		Password:   password,
 		CreateTime: tool.GetNowUnixMilliSecond(),
-		Avatar:     "",
+		Avatar:     fmt.Sprintf(BaseAvatarFormat, random),
 	}
 }
 
