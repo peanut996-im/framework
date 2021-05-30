@@ -91,11 +91,17 @@ func GetRoomsByUID(uid string) ([]*Room, error) {
 	rooms := make([]*Room, 0)
 	roomIDs, err := GetRoomIDsByUID(uid)
 	if nil != err {
+		logger.Debug("get rooms ids err: %v", err)
 		return nil, err
 	}
 	for _, roomID := range roomIDs {
+		if roomID == "" {
+			logger.Warn("this is a empty room id from uid")
+			continue
+		}
 		room, err := GetRoomByID(roomID)
 		if nil != err {
+			logger.Debug("get room from id. id: %v, err: %v", roomID, err)
 			return nil, err
 		}
 		rooms = append(rooms, room)

@@ -7,8 +7,11 @@ package model
 
 import (
 	"framework/db"
+	"framework/logger"
 	"framework/tool"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"sync"
 )
 
 type Group struct {
@@ -49,18 +52,18 @@ func insertGroup(g *Group) error {
 	return nil
 }
 
-func CreateGroup(name, admin string) error {
+func CreateGroup(name, admin string) (*Group, error) {
 	g := NewGroup()
 	g.GroupAdmin = admin
 	g.GroupName = name
 	if err := insertGroup(g); nil != err {
-		return err
+		return nil, err
 	}
 	// create admin
 	if err := CreateGroupUser(g.GroupID, admin); nil != err {
-		return err
+		return nil, err
 	}
-	return nil
+	return g, nil
 }
 
 func GetGroupsByUID(uid string) ([]*Group, error) {

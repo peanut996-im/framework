@@ -9,7 +9,7 @@ import "framework/api/model"
 
 type PushChatRequest struct {
 	Message *model.ChatMessage `json:"message"`
-	Target  string           `json:"target"`
+	Target  string             `json:"target"`
 }
 type ChatRequest struct {
 	//From sender user id
@@ -42,4 +42,9 @@ type GroupRequest struct {
 
 type LoadRequest struct {
 	UID string `json:"uid"`
+}
+
+type FindRequest struct {
+	Account   string `json:"account,omitempty"`
+	GroupName string `json:"groupName,omitempty"`
 }
