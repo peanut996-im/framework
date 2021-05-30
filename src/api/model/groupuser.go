@@ -45,13 +45,14 @@ func CreateGroupUser(groupID, user string) error {
 	return nil
 }
 
-func DeleteGroupUser(groupID, user string) error {
+func DeleteGroupUser(groupID, user string) (*GroupUser, error) {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{"groupID": groupID, "uid": user}
-	if _, err := mongo.DeleteOne(MongoCollectionGroupUser, filter); nil != err {
-		return err
+	gUser := &GroupUser{}
+	if err := mongo.FindOneAndDelete(MongoCollectionGroupUser, gUser, filter); nil != err {
+		return nil, err
 	}
-	return nil
+	return gUser, nil
 }
 
 func GetUserIDsByGroupID(groupID string) ([]string, error) {

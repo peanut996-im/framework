@@ -86,25 +86,25 @@ func AddNewFriend(friendA, friendB string) error {
 	return nil
 }
 
-func DeleteFriend(friendA, friendB string) error {
+func DeleteFriend(friendA, friendB string) (*Friend, error) {
 	mongo := db.GetLastMongoClient()
 	// find room and delete
 	friend, err := GetFriend(friendA, friendB)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := deleteRoom(friend.RoomID); nil != err {
-		return err
+		return nil, err
 	}
 	filter := bson.M{"userA": friendA, "userB": friendB}
 	if _, err = mongo.DeleteMany(MongoCollectionFriend, filter); err != nil {
-		return err
+		return nil, err
 	}
 	filter = bson.M{"userB": friendA, "userA": friendB}
 	if _, err = mongo.DeleteMany(MongoCollectionFriend, filter); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return friend, nil
 }
 
 func GetFriendUIDsByUID(user string) ([]string, error) {
@@ -130,6 +130,7 @@ func GetFriendUIDsByUID(user string) ([]string, error) {
 	}
 	return tool.RemoveDuplicateString(friends), nil
 }
+
 func GetFriendsByUID(uid string) ([]*Friend, error) {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{"userA": uid}
