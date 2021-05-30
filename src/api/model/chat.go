@@ -3,6 +3,8 @@ package model
 import (
 	"framework/db"
 	"framework/tool"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ChatMessage struct {
@@ -34,4 +36,47 @@ func InsertChatMessage(c *ChatMessage) error {
 		return err
 	}
 	return nil
+}
+
+// GetFriendMessage 获取最新的10条好友消息
+func GetFriendMessage(friend *Friend) ([]*ChatMessage, error) {
+	return nil, nil
+}
+
+// GetGroupMessage 获取最新的10条群组消息
+func GetGroupMessage(group *Group) ([]*ChatMessage, error) {
+	return nil, nil
+}
+
+func getMessageWithPage(roomID string, current, pageSize int64) ([]*ChatMessage, error) {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{
+		"to": roomID,
+	}
+	findOptions := &options.FindOptions{}
+	findOptions.Sort = bson.M{"time": -1}
+	findOptions.SetSkip(current)
+	findOptions.SetLimit(pageSize)
+	messages := make([]*ChatMessage, 0)
+	err := mongo.Find(MongoCollectionChatMessage, &messages, filter, findOptions)
+	if nil != err {
+		return nil, err
+	}
+	return messages, nil
+}
+
+func GetGroupMessageWithPage(group *Group, current, pageSize int64) ([]*ChatMessage, error) {
+	messages, err := getMessageWithPage(group.GroupID, current, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return messages, nil
+}
+
+func GetFriendMessageWithPage(friend *Friend, current, pageSize int64) ([]*ChatMessage, error) {
+	messages, err := getMessageWithPage(friend.RoomID, current, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return messages, nil
 }

@@ -19,6 +19,12 @@ type Group struct {
 	CreateTime string `json:"-" bson:"createTime"`
 }
 
+type GroupData struct {
+	Group    `json:",inline"`
+	Members  []*User        `json:"members"`
+	Messages []*ChatMessage `json:"messages"`
+}
+
 func NewGroup() *Group {
 	return &Group{
 		GroupID:    tool.NewSnowFlakeID(),
@@ -81,4 +87,40 @@ func GetGroupByGroupID(groupID string) (*Group, error) {
 		return nil, err
 	}
 	return group, nil
+}
+
+func GetGroupDatasByUID(uid string) ([]*GroupData, error) {
+	groupDatas := make([]*GroupData, 0)
+	groupIDs, err := GetGroupIDsByUID(uid)
+	if err != nil {
+		return nil, err
+	}
+	for _, groupID := range groupIDs {
+		groupData, err := GetGroupDataByGroupID(groupID)
+		if err != nil {
+			return nil, err
+		}
+		groupDatas = append(groupDatas, groupData)
+	}
+	return groupDatas, nil
+}
+
+func GetGroupDataByGroupID(groupID string) (*GroupData, error) {
+	groupData := &GroupData{}
+	group, err := GetGroupByGroupID(groupID)
+	if nil != err {
+		return nil, err
+	}
+	groupData.Group = *group
+	users, err := GetUsersByGroup(group)
+	if err != nil {
+		return nil, err
+	}
+	groupData.Members = users
+	messages, err := GetGroupMessageWithPage(group, 0, DefaultFriendPageSize)
+	if err != nil {
+		return nil, err
+	}
+	groupData.Messages = messages
+	return groupData, nil
 }

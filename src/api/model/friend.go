@@ -23,6 +23,11 @@ type FriendWithRoomID struct {
 	User   `json:",inline"`
 	RoomID string `json:"roomID"`
 }
+type FriendData struct {
+	User     `json:",inline"`
+	RoomID   string         `json:"roomID"`
+	Messages []*ChatMessage `json:"messages"`
+}
 
 func NewFriendWithRoomID(user *User, roomID string) *FriendWithRoomID {
 	return &FriendWithRoomID{
@@ -183,4 +188,37 @@ func GetFriendWithRoomIDsByUID(uid string) ([]*FriendWithRoomID, error) {
 		friendWithRoomIDs = append(friendWithRoomIDs, fR)
 	}
 	return friendWithRoomIDs, nil
+}
+
+func GetFriendDataByFriend(friend *Friend) (*FriendData, error) {
+	friendData := &FriendData{
+		RoomID: friend.RoomID,
+	}
+	user, err := GetUserByUID(friend.FriendB)
+	if err != nil {
+		return nil, err
+	}
+	friendData.User = *user
+	messages, err := GetFriendMessageWithPage(friend, 0, DefaultFriendPageSize)
+	if err != nil {
+		return nil, err
+	}
+	friendData.Messages = messages
+	return friendData, nil
+}
+
+func GetFriendDatasByUID(uid string) ([]*FriendData, error) {
+	friendDatas := make([]*FriendData, 0)
+	friends, err := GetFriendsByUID(uid)
+	if nil != err {
+		return nil, err
+	}
+	for _, friend := range friends {
+		fD, err := GetFriendDataByFriend(friend)
+		if nil != err {
+			return nil, err
+		}
+		friendDatas = append(friendDatas, fD)
+	}
+	return friendDatas, nil
 }

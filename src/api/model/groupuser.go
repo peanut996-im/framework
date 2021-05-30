@@ -102,3 +102,15 @@ func GetUserIDsByGroups(groups ...*Group) ([]string, error) {
 	}
 	return uids, nil
 }
+
+func GetUsersByGroup(group *Group) ([]*User, error) {
+	uids, err := GetUserIDsByGroup(group)
+	if nil != err {
+		return nil, err
+	}
+	users, err := GetUsersFromUIDs(uids...)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}

@@ -12,4 +12,6 @@ const (
 	MongoCollectionGroup       = "Group"
 	MongoCollectionGroupUser   = "GroupUser"
 	MongoCollectionRoom        = "Room"
+
+	DefaultFriendPageSize = 20
 )
