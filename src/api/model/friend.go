@@ -11,6 +11,7 @@ import (
 	"framework/logger"
 	"framework/tool"
 	"go.mongodb.org/mongo-driver/bson"
+	"sync"
 )
 
 type Friend struct {
@@ -213,12 +214,28 @@ func GetFriendDatasByUID(uid string) ([]*FriendData, error) {
 	if nil != err {
 		return nil, err
 	}
+	var wg sync.WaitGroup
+	var lock sync.RWMutex
+	errs := make([]error, 0)
 	for _, friend := range friends {
-		fD, err := GetFriendDataByFriend(friend)
-		if nil != err {
-			return nil, err
-		}
-		friendDatas = append(friendDatas, fD)
+		wg.Add(1)
+		go func(friend *Friend) {
+			defer wg.Done()
+			fD, err := GetFriendDataByFriend(friend)
+			if nil != err {
+				lock.Lock()
+				errs = append(errs, err)
+				lock.Unlock()
+				return
+			}
+			lock.Lock()
+			friendDatas = append(friendDatas, fD)
+			lock.Unlock()
+		}(friend)
+	}
+	wg.Wait()
+	if len(errs) > 0 {
+		return nil, errs[0]
 	}
 	return friendDatas, nil
 }

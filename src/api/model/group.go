@@ -95,12 +95,33 @@ func GetGroupDatasByUID(uid string) ([]*GroupData, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// goroutine for single group
+	var lock sync.RWMutex
+	var wg sync.WaitGroup
+	errs := make([]error, 0)
 	for _, groupID := range groupIDs {
-		groupData, err := GetGroupDataByGroupID(groupID)
-		if err != nil {
-			return nil, err
+		if groupID == "" {
+			continue
 		}
-		groupDatas = append(groupDatas, groupData)
+		wg.Add(1)
+		go func(groupID string) {
+			defer wg.Done()
+			groupData, err := GetGroupDataByGroupID(groupID)
+			if err != nil {
+				lock.Lock()
+				errs = append(errs, err)
+				lock.Unlock()
+				return
+			}
+			lock.Lock()
+			groupDatas = append(groupDatas, groupData)
+			lock.Unlock()
+		}(groupID)
+	}
+	wg.Wait()
+	if len(errs) > 0 {
+		return nil, errs[0]
 	}
 	return groupDatas, nil
 }
