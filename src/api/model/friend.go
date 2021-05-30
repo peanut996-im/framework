@@ -208,6 +208,18 @@ func GetFriendDataByFriend(friend *Friend) (*FriendData, error) {
 	return friendData, nil
 }
 
+func GetFriendDataByIDs(friendA, friendB string) (*FriendData, error) {
+	friend, err := GetFriend(friendA, friendB)
+	if err != nil {
+		return nil, err
+	}
+	friendData, err := GetFriendDataByFriend(friend)
+	if err != nil {
+		return nil, err
+	}
+	return friendData, nil
+}
+
 func GetFriendDatasByUID(uid string) ([]*FriendData, error) {
 	friendDatas := make([]*FriendData, 0)
 	friends, err := GetFriendsByUID(uid)

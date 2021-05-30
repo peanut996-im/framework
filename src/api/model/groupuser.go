@@ -26,12 +26,11 @@ func NewGroupUser() *GroupUser {
 
 func insertGroupUser(groupUser *GroupUser) error {
 	mongo := db.GetLastMongoClient()
-	res, err := mongo.InsertOne(MongoCollectionGroupUser, groupUser)
+	_, err := mongo.InsertOne(MongoCollectionGroupUser, groupUser)
 	if err != nil {
 		logger.Error("mongo insert GroupUser err: %v", err)
 		return err
 	}
-	logger.Info("Mongo insert GroupUser success, id: %v", res.InsertedID)
 	return nil
 }
 
