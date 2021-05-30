@@ -102,3 +102,19 @@ func GetUIDFromAccount(account string) (string, error) {
 	}
 	return user.Account, nil
 }
+
+func FindUsersByAccount(account string) ([]*User, error) {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{
+		"account": bson.M{
+			"$regex": primitive.Regex{Pattern: ".*" + account + ".*", Options: "i"},
+		},
+	}
+	users := make([]*User, 0)
+	err := mongo.Find(MongoCollectionUser, &users, filter)
+	if err != nil {
+		logger.Debug("Mongo Error error: %v", err)
+		return nil, err
+	}
+	return users, nil
+}

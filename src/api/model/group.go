@@ -124,3 +124,19 @@ func GetGroupDataByGroupID(groupID string) (*GroupData, error) {
 	groupData.Messages = messages
 	return groupData, nil
 }
+
+func FindGroupsByGroupName(groupName string) ([]*Group, error) {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{
+		"groupName": bson.M{
+			"$regex": primitive.Regex{Pattern: ".*" + groupName + ".*", Options: "i"},
+		},
+	}
+	groups := make([]*Group, 0)
+	err := mongo.Find(MongoCollectionGroup, &groups, filter)
+	if err != nil {
+		logger.Debug("Mongo Error error: %v", err)
+		return nil, err
+	}
+	return groups, nil
+}
