@@ -119,3 +119,15 @@ func FindUsersByAccount(account string) ([]*User, error) {
 	}
 	return users, nil
 }
+
+func UpdateUser(user *User) error {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{
+		"uid": user.UID,
+	}
+	_, err := mongo.ReplaceOne(MongoCollectionUser, filter, user)
+	if err != nil {
+		return err
+	}
+	return nil
+}
