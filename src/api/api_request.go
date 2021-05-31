@@ -48,3 +48,8 @@ type FindRequest struct {
 	Account   string `json:"account,omitempty"`
 	GroupName string `json:"groupName,omitempty"`
 }
+
+type InviteRequest struct {
+	Friends []string `json:"friends,omitempty"`
+	GroupID string   `json:"groupID,omitempty"`
+}

@@ -9,6 +9,7 @@ const (
 	EventLoad         = "load"
 	EventAddFriend    = "addFriend"
 	EventDeleteFriend = "deleteFriend"
+	EventInviteFriend = "inviteFriend"
 	EventCreateGroup  = "createGroup"
 	EventJoinGroup    = "joinGroup"
 	EventLeaveGroup   = "leaveGroup"
