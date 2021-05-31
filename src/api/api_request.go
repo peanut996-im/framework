@@ -53,3 +53,11 @@ type InviteRequest struct {
 	Friends []string `json:"friends,omitempty"`
 	GroupID string   `json:"groupID,omitempty"`
 }
+
+type PullRequest struct {
+	UID      string `json:"uid,omitempty"`
+	GroupID  string `json:"groupID,omitempty"`
+	FriendID string `json:"friendID,omitempty"`
+	Current  int64  `json:"current"`
+	PageSize int64  `json:"pageSize"`
+}

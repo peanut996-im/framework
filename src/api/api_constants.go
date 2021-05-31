@@ -14,6 +14,7 @@ const (
 	EventJoinGroup    = "joinGroup"
 	EventLeaveGroup   = "leaveGroup"
 	EventChat         = "chat"
+	EventPullMessage  = "pullMessage"
 	EventGetUserInfo  = "getUserInfo"
 	EventFindUser     = "findUser"
 	EventFindGroup    = "findGroup"

@@ -38,16 +38,6 @@ func InsertChatMessage(c *ChatMessage) error {
 	return nil
 }
 
-// GetFriendMessage 获取最新的10条好友消息
-func GetFriendMessage(friend *Friend) ([]*ChatMessage, error) {
-	return nil, nil
-}
-
-// GetGroupMessage 获取最新的10条群组消息
-func GetGroupMessage(group *Group) ([]*ChatMessage, error) {
-	return nil, nil
-}
-
 func getMessageWithPage(roomID string, current, pageSize int64) ([]*ChatMessage, error) {
 	mongo := db.GetLastMongoClient()
 	filter := bson.M{
@@ -73,6 +63,8 @@ func GetGroupMessageWithPage(group *Group, current, pageSize int64) ([]*ChatMess
 	return messages, nil
 }
 
+// GetFriendMessageWithPage pull message with page.
+// !!! Param Friend must have a roomID
 func GetFriendMessageWithPage(friend *Friend, current, pageSize int64) ([]*ChatMessage, error) {
 	messages, err := getMessageWithPage(friend.RoomID, current, pageSize)
 	if err != nil {
