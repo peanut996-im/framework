@@ -13,11 +13,15 @@ type PushChatRequest struct {
 }
 type ChatRequest struct {
 	//From sender user id
-	From    string      `json:"from"`
-	To      string      `json:"to,omitempty"`
-	Time    int64       `json:"time,omitempty"`
-	Type    string      `json:"type"`
-	Content interface{} `json:"content"`
+	From     string  `json:"from"`
+	To       string  `json:"to,omitempty"`
+	Time     int64   `json:"time,omitempty"`
+	Type     string  `json:"type"`
+	Content  string  `json:"content"`
+	FileName string  `json:"fileName,omitempty"`
+	Size     int     `json:"size,omitempty"`
+	Height   float64 `json:"height,omitempty"`
+	Width    float64 `json:"width,omitempty"`
 }
 
 type UserRequest struct {

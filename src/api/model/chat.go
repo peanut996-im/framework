@@ -8,11 +8,15 @@ import (
 )
 
 type ChatMessage struct {
-	From    string `json:"from" bson:"from"`
-	To      string `json:"to,omitempty" bson:"to"`
-	Content string `json:"content" bson:"content"`
-	Time    string `json:"time,omitempty" bson:"time"`
-	Type    string `json:"type" bson:"type"`
+	From     string  `json:"from" bson:"from"`
+	To       string  `json:"to,omitempty" bson:"to"`
+	Content  string  `json:"content" bson:"content"`
+	Time     string  `json:"time,omitempty" bson:"time"`
+	Type     string  `json:"type" bson:"type"`
+	FileName string  `json:"fileName" bson:"fileName"`
+	Size     int     `json:"size" bson:"size"`
+	Height   float64 `json:"height" bson:"height"`
+	Width    float64 `json:"width" bson:"width"`
 }
 
 func NewChatMessage() *ChatMessage {
@@ -21,12 +25,16 @@ func NewChatMessage() *ChatMessage {
 	}
 }
 
-func ChatMessageFrom(from, to, content, Type string) *ChatMessage {
+func ChatMessageFrom(from, to, content, Type string, height, width float64, size int, fileName string) *ChatMessage {
 	c := NewChatMessage()
 	c.From = from
 	c.To = to
 	c.Content = content
 	c.Type = Type
+	c.Size = size
+	c.Height = height
+	c.Width = width
+	c.FileName = fileName
 	return c
 }
 
