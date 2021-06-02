@@ -26,7 +26,7 @@ type NodeRoute struct {
 
 //Server ...
 type Server struct {
-	cfg    *cfgargs.SrvConfig
+	cfg     *cfgargs.SrvConfig
 	session *gin.Engine
 	routers []*NodeRoute
 }
@@ -56,6 +56,8 @@ func NewNodeRoute(path string, routers ...*Route) *NodeRoute {
 func (s *Server) AddNodeRoute(nodes ...*NodeRoute) {
 	s.routers = append(s.routers, nodes...)
 }
+
+//Init Read HTTP configuration: cross-domain, signature, Release
 func (s *Server) Init(cfg *cfgargs.SrvConfig) {
 	if cfg.HTTP.Release {
 		gin.SetMode(gin.ReleaseMode)
@@ -67,10 +69,9 @@ func (s *Server) Init(cfg *cfgargs.SrvConfig) {
 		s.session.Use(CheckSign(cfg))
 	}
 	s.cfg = cfg
-
 }
 
-//Run ...
+//Run Route and start HTTP based on the port of the yaml file.
 func (s *Server) Run() error {
 	s.mountRoutes()
 	err := s.session.Run(fmt.Sprintf(":%v", s.cfg.HTTP.Port))

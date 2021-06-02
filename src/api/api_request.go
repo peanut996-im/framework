@@ -77,3 +77,10 @@ type UpdateRequest struct {
 	Account  string `json:"account,omitempty"`
 	Avatar   string `json:"avatar,omitempty"`
 }
+
+//InvokeRequest  透传请求
+type InvokeRequest struct {
+	Targets []string    `json:"targets"`
+	Event   string      `json:"event"`
+	Data    interface{} `json:"data"`
+}

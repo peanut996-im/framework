@@ -75,16 +75,22 @@ type Redis struct {
 	Panic    bool   `yaml:"panic"`
 }
 
+//Gate configure for Gate Node.
 type Gate struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
+	Mode string `yaml:"mode"`
+	// 初始化Mode模式的Broker失败是否panic
+	Panic bool `yaml:"panic"`
 }
 
-//Logic configure for Redis
+//Logic configure for Logic Server
 type Logic struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
 	Mode string `yaml:"mode"`
+	// 初始化Mode模式的Broker失败是否panic
+	Panic bool `yaml:"panic"`
 }
 
 func InitSrvCfg(build *Build, flagParse func()) (*SrvConfig, error) {

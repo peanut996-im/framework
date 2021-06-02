@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-
 //User means a people who use the system.
 type User struct {
 	UID        string `json:"uid,omitempty" bson:"uid"`
@@ -56,6 +55,11 @@ func GetUserByUID(uid string) (*User, error) {
 func GetUsersFromUIDs(uids ...string) ([]*User, error) {
 	users := make([]*User, 0)
 	for _, uid := range uids {
+		// bugfix: when uid is "", it will return err
+		if uid == "" {
+			logger.Warn("model.GetUsersFromUIDs uid is empty")
+			continue
+		}
 		user, err := GetUserByUID(uid)
 		if err != nil {
 			return nil, err
@@ -122,4 +126,23 @@ func UpdateUser(user *User) error {
 		return err
 	}
 	return nil
+}
+
+func GetAssociatedUIDsByUID(uid string) ([]string, error) {
+	uids := []string{}
+	friends, err := GetFriendUIDsByUID(uid)
+	if err != nil {
+		return nil, err
+	}
+	uids = append(uids, friends...)
+	groups, err := GetGroupsByUID(uid)
+	if err != nil {
+		return nil, err
+	}
+	groupUsers, err := GetUserIDsByGroups(groups...)
+	if err != nil {
+		return nil, err
+	}
+	uids = append(uids, groupUsers...)
+	return tool.RemoveDuplicateString(uids), nil
 }

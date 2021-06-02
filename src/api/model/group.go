@@ -56,6 +56,7 @@ func CreateGroup(name, admin string) (*Group, error) {
 	g := NewGroup()
 	g.GroupAdmin = admin
 	g.GroupName = name
+	logger.Debug("model.CreateGroup admin: %v,name: %v", admin, name)
 	if err := insertGroup(g); nil != err {
 		return nil, err
 	}
