@@ -28,6 +28,7 @@ type SrvConfig struct {
 	SocketIO `yaml:"socket.io" json:"SocketIO,omitempty"`
 	Logic    `yaml:"logic" json:"Logic,omitempty"`
 	Gate     `yaml:"gate" json:"Gate,omitempty"`
+	Kafka    `yaml:"kafka" json:"Kafka,omitempty"`
 	AppKey   string `yaml:"appkey" json:"AppKey"`
 }
 
@@ -91,6 +92,14 @@ type Logic struct {
 	Mode string `yaml:"mode"`
 	// 初始化Mode模式的Broker失败是否panic
 	Panic bool `yaml:"panic"`
+}
+
+//Kafka 配置信息
+type Kafka struct {
+	Host  string `yaml:"host"`
+	Port  int    `yaml:"port"`
+	Group string `yaml:"group"`
+	Topic string `yaml:"topic"`
 }
 
 func InitSrvCfg(build *Build, flagParse func()) (*SrvConfig, error) {
