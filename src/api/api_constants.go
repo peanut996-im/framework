@@ -19,6 +19,7 @@ const (
 	EventFindUser     = "findUser"
 	EventFindGroup    = "findGroup"
 	EventUpdateUser   = "updateUser"
+	EventUpdateGroup  = "updateGroup"
 )
 
 const (

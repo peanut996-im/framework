@@ -70,12 +70,19 @@ type PullRequest struct {
 	PageSize int64  `json:"pageSize"`
 }
 
-//UpdateRequest 更新用户信息
-type UpdateRequest struct {
+//UpdateUserRequest 更新用户信息
+type UpdateUserRequest struct {
 	UID      string `json:"uid"`
 	Password string `json:"password,omitempty"`
 	Account  string `json:"account,omitempty"`
 	Avatar   string `json:"avatar,omitempty"`
+}
+
+//UpdateGroupRequest 更新群组信息
+type UpdateGroupRequest struct {
+	GroupID     string `json:"groupID,omitempty"`
+	GroupName   string `json:"groupName,omitempty"`
+	GroupNotice string `json:"groupNotice,omitempty"`
 }
 
 //InvokeRequest  透传请求

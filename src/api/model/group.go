@@ -20,6 +20,7 @@ type Group struct {
 	GroupName  string `json:"groupName" bson:"groupName"`
 	GroupAdmin string `json:"groupAdmin" bson:"groupAdmin"`
 	CreateTime string `json:"-" bson:"createTime"`
+	Notice     string `json:"notice" bson:"notice"`
 }
 
 type GroupData struct {
@@ -187,4 +188,16 @@ func FindGroupsByGroupName(groupName string) ([]*Group, error) {
 		return nil, err
 	}
 	return groups, nil
+}
+
+func UpdateGroup(group *Group) error {
+	mongo := db.GetLastMongoClient()
+	filter := bson.M{
+		"groupID": group.GroupID,
+	}
+	_, err := mongo.ReplaceOne(MongoCollectionGroup, filter, group)
+	if err != nil {
+		return err
+	}
+	return nil
 }
