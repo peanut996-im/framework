@@ -7,7 +7,9 @@ package tool
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/bwmarrin/snowflake"
+	"net"
 	"strconv"
 	"time"
 )
@@ -42,4 +44,25 @@ func GetNowUnixMilliSecond() string {
 }
 func GetNowUnixNanoSecond() string {
 	return strconv.FormatInt(time.Now().UnixNano(), 10)
+}
+
+func GetIp() (string, error) {
+	addrs, err := net.InterfaceAddrs()
+
+	if err != nil {
+		return "", err
+	}
+
+	for _, address := range addrs {
+		// 检查ip地址判断是否回环地址
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String(), nil
+			}
+
+		}
+	}
+
+	return "", errors.New("Can not find the client ip address!")
+
 }

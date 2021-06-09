@@ -8,9 +8,13 @@ import (
 	"framework/cfgargs"
 	"framework/logger"
 	"framework/net/http"
+	"framework/tool"
+	"github.com/gin-gonic/gin"
+	http2 "net/http"
 )
 
 type GateBrokerHttp struct {
+	cfg       *cfgargs.SrvConfig
 	srv       *http.Server
 	client    *http.Client
 	panic     bool
@@ -51,6 +55,53 @@ func (g *GateBrokerHttp) Listen() {
 }
 
 func (g *GateBrokerHttp) Register() {
+	ip, _ := tool.GetIp()
+	addr := fmt.Sprintf("http://%v:%v", ip, g.cfg.HTTP.Port)
+	data := make(map[string]interface{})
+	data["ip"] = addr
+	res, err := g.Send("gate/register", data)
+	if err != nil {
+		if g.panic {
+			panic(err)
+		} else {
+			return
+		}
+	}
+	err = json.Unmarshal(res.(json.RawMessage), &data)
+	if data["code"] != 0 {
+		if g.panic {
+			panic("GateBroker.Register failed")
+		} else {
+			logger.Debug("GateBroker.Register failed")
+			return
+		}
+	}
+
+}
+
+func (g *GateBrokerHttp) Update(scenes interface{}) {
+	ip, _ := tool.GetIp()
+	addr := fmt.Sprintf("http://%v:%v", ip, g.cfg.HTTP.Port)
+	data := make(map[string]interface{})
+	data["ip"] = addr
+	data["scene"] = scenes.([]string)
+	res, err := g.Send("gate/update", data)
+	if err != nil {
+		if g.panic {
+			panic(err)
+		} else {
+			return
+		}
+	}
+	err = json.Unmarshal(res.(json.RawMessage), &data)
+	if data["code"] != 0 {
+		if g.panic {
+			panic("GateBroker.Update failed")
+		} else {
+			logger.Debug("GateBroker.Update failed")
+			return
+		}
+	}
 
 }
 
@@ -59,6 +110,7 @@ func NewGateBrokerHttp() *GateBrokerHttp {
 }
 
 func (g *GateBrokerHttp) Init(cfg *cfgargs.SrvConfig) {
+	g.cfg = cfg
 	g.srv = http.NewServer()
 	g.srv.Init(cfg)
 	g.client = http.NewClient()
@@ -70,6 +122,8 @@ func (g *GateBrokerHttp) Init(cfg *cfgargs.SrvConfig) {
 		return
 	}
 	addr := fmt.Sprintf("http://%v:%v", cfg.Logic.Host, cfg.Logic.Port)
+	node := http.NewNodeRoute("logic", http.NewRoute(api.HTTPMethodPost, "ping", g.PingPong()))
+	g.AddNodeRoute(node)
 	g.logicAddr = addr
 }
 
@@ -149,4 +203,10 @@ func (g *GateBrokerHttp) DeleteFriend(addFriendRequest interface{}) (interface{}
 		return nil, errors.New(fmt.Sprintf("GateBroker AddFriend http failed code: %v", resp.StatusCode))
 	}
 	return json.RawMessage(body), nil
+}
+
+func (g *GateBrokerHttp) PingPong() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		c.String(http2.StatusOK, "Pong!")
+	}
 }

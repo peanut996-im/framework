@@ -12,12 +12,18 @@ import (
 	"framework/cfgargs"
 	"framework/logger"
 	"framework/net/http"
+	"github.com/gin-gonic/gin"
+	"sync"
+	"time"
 )
 
 type LogicBrokerHttp struct {
-	srv      *http.Server
-	client   *http.Client
-	gateAddr string
+	srv          *http.Server
+	client       *http.Client
+	gateAddr     string
+	gateToScenes map[string][]string
+	sceneToGate  map[string]string
+	sync.Mutex
 }
 
 func NewLogicBrokerHttp() *LogicBrokerHttp {
@@ -62,11 +68,80 @@ func (l *LogicBrokerHttp) Invoke(packet interface{}) (interface{}, error) {
 }
 
 // InvokeTarget Send commands to the gate instance
-func (l *LogicBrokerHttp) InvokeTarget(target, event string, data interface{}) (interface{}, error) {
-	panic("unimplemented")
+func (l *LogicBrokerHttp) InvokeTarget(target, event string, data interface{}) {
+	l.Lock()
+	addr, ok := l.sceneToGate[target]
+	if ok {
+		go l.client.GetGoReq().Post(addr + event).Send(data).End()
+	}
 }
 
 // AddNodeRoute Mount the route to the internal HTTP server.
 func (l *LogicBrokerHttp) AddNodeRoute(nodes ...*http.NodeRoute) {
 	l.srv.AddNodeRoute(nodes...)
+}
+
+func (l *LogicBrokerHttp) handleRegister(c *gin.Context) {
+	data := make(map[string]interface{})
+	c.BindJSON(&data)
+	l.Unlock()
+	_, ok := l.gateToScenes[data["ip"].(string)]
+	if !ok {
+		l.gateToScenes[data["ip"].(string)] = []string{"1", "2"}
+	}
+	l.Lock()
+}
+
+func (l *LogicBrokerHttp) handleUpdate(c *gin.Context) {
+	data := make(map[string]interface{})
+	c.BindJSON(&data)
+	l.Unlock()
+	scenes, ok := l.gateToScenes[data["ip"].(string)]
+	if !ok {
+		l.gateToScenes[data["ip"].(string)] = data["scenes"].([]string)
+	} else {
+		scenes = data["scenes"].([]string)
+		l.gateToScenes[data["ip"].(string)] = scenes
+		for _, scene := range scenes {
+			l.sceneToGate[scene] = data["ip"].(string)
+		}
+	}
+	l.Lock()
+}
+
+func (l *LogicBrokerHttp) loopDoKeepAlive() {
+	for {
+		for addr := range l.gateToScenes {
+			go func() {
+				isAlive := false
+				resp, _, err := l.client.GetGoReq().Post(fmt.Sprintf("%v:%v", addr, "logic/ping")).End()
+				if err != nil || resp.StatusCode != 200 {
+					// start retry
+					for i := 0; i < 3; i++ {
+						resp, _, err := l.client.GetGoReq().Post(fmt.Sprintf("%v:%v", addr, "logic/ping")).End()
+						if err == nil && resp.StatusCode == 200 {
+							isAlive = true
+							break
+						}
+					}
+				} else {
+					isAlive = true
+				}
+				if !isAlive {
+					l.Lock()
+					scenes, ok := l.gateToScenes[addr]
+					if ok {
+						for _, scene := range scenes {
+							delete(l.sceneToGate, scene)
+						}
+					}
+					delete(l.gateToScenes, addr)
+
+				}
+
+			}()
+		}
+		time.After(500 * time.Millisecond)
+	}
+
 }

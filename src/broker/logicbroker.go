@@ -11,5 +11,5 @@ type LogicBroker interface {
 	Init(*cfgargs.SrvConfig)
 	Listen()
 	Invoke(packet interface{}) (interface{}, error)
-	InvokeTarget(target, event string, data interface{}) (interface{}, error)
+	InvokeTarget(target, event string, data interface{})
 }
