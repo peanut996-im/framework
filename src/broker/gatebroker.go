@@ -6,5 +6,6 @@ type GateBroker interface {
 	Init(cfg *cfgargs.SrvConfig)
 	Send(string, interface{}) (interface{}, error)
 	Listen()
-	Register()
+	Register() error
+	Update(interface{})
 }

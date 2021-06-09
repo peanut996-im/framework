@@ -54,7 +54,7 @@ func (g *GateBrokerHttp) Listen() {
 	g.srv.Run()
 }
 
-func (g *GateBrokerHttp) Register() {
+func (g *GateBrokerHttp) Register() error {
 	ip, _ := tool.GetIp()
 	addr := fmt.Sprintf("http://%v:%v", ip, g.cfg.HTTP.Port)
 	data := make(map[string]interface{})
@@ -64,7 +64,7 @@ func (g *GateBrokerHttp) Register() {
 		if g.panic {
 			panic(err)
 		} else {
-			return
+			return err
 		}
 	}
 	err = json.Unmarshal(res.(json.RawMessage), &data)
@@ -73,9 +73,10 @@ func (g *GateBrokerHttp) Register() {
 			panic("GateBroker.Register failed")
 		} else {
 			logger.Debug("GateBroker.Register failed")
-			return
+			return err
 		}
 	}
+	return nil
 
 }
 
